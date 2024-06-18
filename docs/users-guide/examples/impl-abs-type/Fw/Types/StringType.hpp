@@ -41,7 +41,7 @@ namespace Fw {
             // to support GoogleTest framework in unit tests
             friend std::ostream& operator<<(std::ostream& os, const StringBase& str);
 #endif
-#if FW_SERIALIZABLE_TO_STRING || BUILD_UT
+#if FW_SERIALIZABLE_TO_STRING || defined(BUILD_UT)
             void toString(StringBase& text) const; //!< write string with contents
 #endif
 

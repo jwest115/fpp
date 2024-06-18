@@ -27,7 +27,7 @@ namespace Fw {
         public:
             virtual SerializeStatus serialize(SerializeBufferBase& buffer) const = 0; //!< serialize contents
             virtual SerializeStatus deserialize(SerializeBufferBase& buffer) = 0; //!< deserialize to contents
-#if FW_SERIALIZABLE_TO_STRING || BUILD_UT
+#if FW_SERIALIZABLE_TO_STRING || defined(BUILD_UT)
             virtual void toString(StringBase& text) const; //!< generate text from serializable
 #endif
 

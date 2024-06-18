@@ -148,7 +148,7 @@ public:
     //! \param context: user-specified context to track creation. Default: no context
     void set(U8* data, U32 size, U32 context=NO_CONTEXT);
 
-#if FW_SERIALIZABLE_TO_STRING || BUILD_UT
+#if FW_SERIALIZABLE_TO_STRING || defined(BUILD_UT)
     //! Supports writing this buffer to a string representation
     void toString(Fw::StringBase& text) const;
 #endif

@@ -19,7 +19,7 @@ namespace Fw {
     Serializable::~Serializable() {
     }
 
-#if FW_SERIALIZABLE_TO_STRING || BUILD_UT
+#if FW_SERIALIZABLE_TO_STRING || defined(BUILD_UT)
 
     void Serializable::toString(StringBase& text) const {
         text = "NOSPEC"; // set to not specified.
