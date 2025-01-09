@@ -8,11 +8,13 @@ module FppTest {
     # ----------------------------------------------------------------------
     # Types
     # ----------------------------------------------------------------------
+    @ An abstract type A
+    type A
 
     @ Data for a DataRecord
     struct Data {
-      @ A U16 field
-      u16Field: U16
+      @ A abstract type field
+      absTypeField: A
     }
 
     @ Data for a ComplexRecord

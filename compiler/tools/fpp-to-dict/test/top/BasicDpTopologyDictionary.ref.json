@@ -9,22 +9,29 @@
   },
   "typeDefinitions" : [
     {
+      "kind" : "abstract",
+      "qualifiedName" : "FppTest.DpTestComponent.A",
+      "type" : {
+        "type" : "unknown",
+        "kind" : "unknown"
+      },
+      "annotation" : "An abstract type A"
+    },
+    {
       "kind" : "struct",
       "qualifiedName" : "FppTest.DpTestComponent.Data",
       "members" : {
-        "u16Field" : {
+        "absTypeField" : {
           "type" : {
-            "name" : "U16",
-            "kind" : "integer",
-            "size" : 16,
-            "signed" : false
+            "name" : "FppTest.DpTestComponent.A",
+            "kind" : "qualifiedIdentifier"
           },
           "index" : 0,
-          "annotation" : "A U16 field"
+          "annotation" : "A abstract type field"
         }
       },
       "default" : {
-        "u16Field" : 0
+        "absTypeField" : "value of type A"
       },
       "annotation" : "Data for a DataRecord"
     },
@@ -53,7 +60,7 @@
       },
       "default" : {
         "f1" : {
-          "u16Field" : 0
+          "absTypeField" : "value of type A"
         },
         "f2" : 0
       },

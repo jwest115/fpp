@@ -145,6 +145,12 @@ case class DictionaryJsonEncoder(
                     "kind" -> "qualifiedIdentifier".asJson,
                 )
             }
+            case Type.AbsType(node) => {
+                Json.obj(
+                    "name" -> dictionaryState.a.getQualifiedName(Symbol.AbsType(node)).toString.asJson,
+                    "kind" -> "qualifiedIdentifier".asJson,
+                )
+            }
             // Case where type we are trying to convert to JSON is not supported in the dictionary spec (should never occur)
             case _ => throw InternalError("type not supported in JSON dictionary spec")
         }
@@ -185,7 +191,7 @@ case class DictionaryJsonEncoder(
         }
     }
 
-    /** JSON Encoding for symbols (arrays, enums, and structs only) */
+    /** JSON Encoding for symbols (arrays, enums, structs, and abstract types only) */
     private implicit def typeSymbolEncoder [T <: Symbol]: Encoder[T] = new Encoder[T] {
         override def apply(symbol: T): Json = {
             val qualifiedName = dictionaryState.a.getQualifiedName(symbol).toString
@@ -268,6 +274,21 @@ case class DictionaryJsonEncoder(
                         "annotation" -> concatAnnotations(preA, postA)
                     )
                     jsonWithOptionalValues(json, optionalValues)
+                }
+                case Symbol.AbsType(preA, node, postA) => {
+                    val json = Json.obj(
+                        "kind" -> "abstract".asJson,
+                        "qualifiedName" -> qualifiedName.asJson,
+                        "type" -> Json.obj(
+                            "type" -> "unknown".asJson,
+                            "kind" -> "unknown".asJson
+                        )
+                    )
+                    val optionalValues = Map(
+                        "annotation" -> concatAnnotations(preA, postA)
+                    )
+                    jsonWithOptionalValues(json, optionalValues)
+
                 }
                 // Case where type symbol we are trying to convert to JSON is not supported in the dictionary spec (should never occur)
                 case _ => throw InternalError("type symbol not supported in JSON dictionary spec")
@@ -488,7 +509,7 @@ case class DictionaryJsonEncoder(
 
     /** Main interface for the class. JSON Encoding for a complete dictionary */
     def dictionaryAsJson: Json = {
-        /** Split set into individual sets consisting of each symbol type (arrays, enums, structs) */
+        /** Split set into individual sets consisting of each symbol type (arrays, enums, structs, and abstract types) */
         val typeDefSymbols = splitTypeSymbolSet(dictionary.typeSymbolSet, Set())
         /** Convert each dictionary element to JSON and return the complete dictionary JSON */
         Json.obj(
@@ -539,11 +560,11 @@ case class DictionaryJsonEncoder(
         if (concat.isEmpty) None else Some(concat)
     }
 
-     /** Given a set of symbols, returns subset consisting of array, enum, and struct symbols */
+     /** Given a set of symbols, returns subset consisting of array, enum, struct, and abstract type symbols */
     private def splitTypeSymbolSet(symbolSet: Set[Symbol], outSet: Set[Symbol]): (Set[Symbol]) = {
         if (symbolSet.isEmpty) (outSet) else {
             val (tail, out) = symbolSet.head match {
-                case h: (Symbol.Array | Symbol.Enum | Symbol.Struct) => (symbolSet.tail, outSet + h)
+                case h: (Symbol.Array | Symbol.Enum | Symbol.Struct | Symbol.AbsType) => (symbolSet.tail, outSet + h)
                 case _ => (symbolSet.tail, outSet)
             }
             splitTypeSymbolSet(tail, out)
