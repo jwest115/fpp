@@ -145,6 +145,12 @@ case class DictionaryJsonEncoder(
                     "kind" -> "qualifiedIdentifier".asJson,
                 )
             }
+            case Type.AliasType(node, _) => {
+                Json.obj(
+                    "name" -> dictionaryState.a.getQualifiedName(Symbol.AliasType(node)).toString.asJson,
+                    "kind" -> "qualifiedIdentifier".asJson,
+                )
+            }
             // Case where type we are trying to convert to JSON is not supported in the dictionary spec (should never occur)
             case _ => throw InternalError("type not supported in JSON dictionary spec")
         }
@@ -265,6 +271,20 @@ case class DictionaryJsonEncoder(
                     )
                     val optionalValues = Map(
                         "default" -> default, 
+                        "annotation" -> concatAnnotations(preA, postA)
+                    )
+                    jsonWithOptionalValues(json, optionalValues)
+                }
+                case Symbol.AliasType(preA, node, postA) => {
+                    val alias = dictionaryState.a.typeMap(symbol.getNodeId)
+                    val Type.AliasType(_, aliasType) = alias
+                    val json = Json.obj(
+                        "kind" -> "alias".asJson,
+                        "qualifiedName" -> qualifiedName.asJson,
+                        "type" -> typeAsJson(aliasType),
+                        "underlyingType" -> typeAsJson(alias.getUnderlyingType)
+                    )
+                    val optionalValues = Map(
                         "annotation" -> concatAnnotations(preA, postA)
                     )
                     jsonWithOptionalValues(json, optionalValues)
@@ -543,7 +563,7 @@ case class DictionaryJsonEncoder(
     private def splitTypeSymbolSet(symbolSet: Set[Symbol], outSet: Set[Symbol]): (Set[Symbol]) = {
         if (symbolSet.isEmpty) (outSet) else {
             val (tail, out) = symbolSet.head match {
-                case h: (Symbol.Array | Symbol.Enum | Symbol.Struct) => (symbolSet.tail, outSet + h)
+                case h: (Symbol.Array | Symbol.Enum | Symbol.Struct | Symbol.AliasType) => (symbolSet.tail, outSet + h)
                 case _ => (symbolSet.tail, outSet)
             }
             splitTypeSymbolSet(tail, out)
