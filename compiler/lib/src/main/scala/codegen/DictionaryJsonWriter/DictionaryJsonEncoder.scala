@@ -278,11 +278,7 @@ case class DictionaryJsonEncoder(
                 case Symbol.AbsType(preA, node, postA) => {
                     val json = Json.obj(
                         "kind" -> "abstract".asJson,
-                        "qualifiedName" -> qualifiedName.asJson,
-                        "type" -> Json.obj(
-                            "type" -> "unknown".asJson,
-                            "kind" -> "unknown".asJson
-                        )
+                        "qualifiedName" -> qualifiedName.asJson
                     )
                     val optionalValues = Map(
                         "annotation" -> concatAnnotations(preA, postA)

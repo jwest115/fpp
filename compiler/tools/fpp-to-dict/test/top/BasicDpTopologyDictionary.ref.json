@@ -11,10 +11,6 @@
     {
       "kind" : "abstract",
       "qualifiedName" : "FppTest.DpTestComponent.A",
-      "type" : {
-        "type" : "unknown",
-        "kind" : "unknown"
-      },
       "annotation" : "An abstract type A"
     },
     {
