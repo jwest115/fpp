@@ -692,11 +692,11 @@ abstract class ComponentCppWriterUtils(
   /** Write an event format as C++ */
   def writeEventFormat(event: Event): String = {
     val formatList = event.format.fields zip event.aNode._2.data.params.map(_._2.data.typeName)
-    formatList.foldLeft(FormatCppWriter.escapePercent(event.format.prefix))((a, s) =>
-      a + (s match {
+    formatList.foldLeft(FormatCppWriter.escapePercent(event.format.prefix))((a1, s1) =>
+      a1 + (s1 match {
         case (f, tn) => f match {
           case (field, suffix) =>
-            FormatCppWriter.writeField(field, tn) + FormatCppWriter.escapePercent(suffix)
+            FormatCppWriter.writeField(field, tn, s.a.typeMap(tn.id)) + FormatCppWriter.escapePercent(suffix)
         }
       })
     )

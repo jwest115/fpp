@@ -40,7 +40,8 @@ case class ArrayCppWriter (
 
   private val formatStr = FormatCppWriter.write(
     arrayType.format.getOrElse(Format("", List((Format.Field.Default, "")))),
-    data.eltType
+    data.eltType,
+    s.a.typeMap(data.eltType.id)
   )
 
   private def writeIncludeDirectives(

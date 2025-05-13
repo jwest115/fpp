@@ -470,7 +470,8 @@ case class StructCppWriter(
                 val n = node.data.name
                 val formatStr = FormatCppWriter.write(
                   getFormatStr(n),
-                  node.data.typeName
+                  node.data.typeName,
+                  s.a.typeMap(node.data.typeName.id)
                 )
                 if sizes.contains(n) then {
                   if sizes(n) == 1 then
