@@ -184,6 +184,105 @@ object EvalConstantExprs extends UseAnalyzer {
       yield a.assignValue(node -> a.valueMap(e.e.id))
   }
 
+  override def exprSizeOfNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprSizeOf) = {
+    def computeTypeSize(t: Type): Result.Result[BigInt] = {
+      t match
+        case Type.PrimitiveInt(kind) =>
+          kind match
+            case Type.PrimitiveInt.I8 => Right(1)
+            case Type.PrimitiveInt.I16 => Right(2)
+            case Type.PrimitiveInt.I32 => Right(4)
+            case Type.PrimitiveInt.I64 => Right(8)
+            case Type.PrimitiveInt.U8 => Right(1)
+            case Type.PrimitiveInt.U16 => Right(2)
+            case Type.PrimitiveInt.U32 => Right(4)
+            case Type.PrimitiveInt.U64 => Right(8)
+        case Type.Integer => Right(8) // arbitrary width integer
+        case Type.Float(kind) => 
+          kind match
+            case Type.Float.F32 => Right(4)
+            case Type.Float.F64 => Right(8)
+        case Type.Boolean => Right(1)
+        case Type.String(size) => {
+          size match {
+            case Some(AstNode(Ast.ExprLiteralInt(s), _)) => Right(BigInt(s))
+            case _ => Right(80) // 80 default taken from CppWriterState
+          }
+        }
+        case t: Type.AliasType =>
+          computeTypeSize(t.getUnderlyingType)
+        case t: Type.Array => {
+          val arraySize = t.getArraySize match {
+            case Some(as) => BigInt(as)
+            case _ => BigInt(11111111) // temp
+          }
+          for {
+            arrayTypeSize <- computeTypeSize(t.anonArray.eltType)
+          } yield {
+            arrayTypeSize * arraySize
+          }
+        }
+        case Type.Enum(_, repType, _) => computeTypeSize(repType)
+        case Type.Struct(_, anonStruct, _, _, _) => {
+          anonStruct.members.values.foldLeft(
+            Right(BigInt(0)): Result.Result[BigInt]
+          ) { (accE, t) =>
+            for {
+              acc  <- accE
+              size <- computeTypeSize(t)
+            } yield acc + size
+          }
+        }
+
+        // placeholder int until I add error 
+        case _ => Right(11111111)
+    }
+
+    def finalizeTypeDefs(a: Analysis, t: Type): Result.Result[(Analysis)] = {
+      t match {
+        case Type.Array(aNode, _, _, _) => FinalizeTypeDefs.defArrayAnnotatedNode(a, aNode)
+        case Type.AliasType(aNode, _) => FinalizeTypeDefs.defAliasTypeAnnotatedNode(a, aNode)
+        case Type.Enum(aNode, _, _) => FinalizeTypeDefs.defEnumAnnotatedNode(a, aNode)
+        case Type.Struct(aNode, _, _, _, _) => FinalizeTypeDefs.defStructAnnotatedNode(a, aNode)
+        case _ => Right(a)
+      }
+    }
+
+    e.typeName.data match {
+      case Ast.TypeNameQualIdent(_) => {
+        a.typeMap.get(e.typeName.id) match {
+          case Some(t) => {
+            for {
+              a2 <- finalizeTypeDefs(a, t)
+              typeDefId <- {
+                  t.getDefNodeId match {
+                    case Some(id) => Right(id)
+                    case _ => Right(-1) // temp
+                  }
+              }
+              size <- computeTypeSize(a2.typeMap(typeDefId))
+            } yield a2.assignValue(node -> Value.Integer(size))
+          }
+          case None => {
+            Right(a) // temp
+          }
+        }
+      }
+      case _ => {
+        a.typeMap.get(e.typeName.id) match {
+          case Some(t) => {
+            for {
+              size <- computeTypeSize(t)
+            } yield a.assignValue(node -> Value.Integer(size))
+          }
+          case None => {
+            Right(a) // temp
+          }
+        }
+      }
+    }
+  }
+
   override def exprStructNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprStruct) =
     for (a <- super.exprStructNode(a, node, e))
       yield {

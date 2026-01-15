@@ -180,6 +180,9 @@ object CheckExprTypes extends UseAnalyzer {
       yield a.assignType(node -> a.typeMap(e.e.id))
   }
 
+  override def exprSizeOfNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprSizeOf) =
+    Right(a.assignType(node -> Type.Integer))
+
   override def exprStructNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprStruct) = {
     def getName(member: Ast.StructMember) = member.name
     for {

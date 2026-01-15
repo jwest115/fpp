@@ -114,6 +114,9 @@ trait AstTransformer {
   def exprUnopNode(in: In, node: AstNode[Ast.Expr], e: Ast.ExprUnop): ResultNode[Ast.Expr] =
     Right(default(in), node)
 
+  def exprSizeOfNode(in: In, node: AstNode[Ast.Expr], e: Ast.ExprSizeOf): ResultNode[Ast.Expr] =
+    Right(default(in), node)
+
   def specCommandAnnotatedNode(
     in: In,
     node: Ast.Annotated[AstNode[Ast.SpecCommand]]
@@ -313,6 +316,7 @@ trait AstTransformer {
       case e : Ast.ExprParen => exprParenNode(in, node, e)
       case e : Ast.ExprStruct => exprStructNode(in, node, e)
       case e : Ast.ExprUnop => exprUnopNode(in, node, e)
+      case e : Ast.ExprSizeOf => exprSizeOfNode(in, node, e)
     }
 
   final def matchModuleMember(in: In, member: Ast.ModuleMember): Result[Ast.ModuleMember] = {
