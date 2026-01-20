@@ -250,32 +250,18 @@ object EvalConstantExprs extends UseAnalyzer {
       t match {
         case ty: Type.AliasType => FinalizeTypeDefs.defAliasTypeAnnotatedNode(a, ty.node)
         case ty: Type.Array => for {
-          a <- {
-            a.typeMap.get(ty.node._2.data.eltType.id) match {
-              case Some(t2) => for {
-                a1 <- visitExprs(a, t2)
-                a1 <- finalizeTypeDefs(a1, t2)
-              } yield a1
-              case _ => throw InternalError("expected type")
-            }
-          }
+          a <- visitExprs(a, ty.anonArray.eltType)
+          a <- finalizeTypeDefs(a, ty.anonArray.eltType)
           a <- FinalizeTypeDefs.defArrayAnnotatedNode(a, ty.node)
         } yield a
         case ty: Type.Enum => FinalizeTypeDefs.defEnumAnnotatedNode(a, ty.node)
         case ty: Type.Struct => {
           for {
-            a <- ty.node._2.data.members.foldLeft(Right(a): Result.Result[Analysis]) {
-              (res, structMemberNode) => for {
+            a <- ty.anonStruct.members.values.foldLeft(Right(a): Result.Result[Analysis]) {
+              (res, structMemberType) => for {
                 a1 <- res
-                a1 <- {
-                  a.typeMap.get(structMemberNode._2.data.typeName.id) match {
-                    case Some(t2) => for {
-                      a2 <- visitExprs(a1, t2)
-                      a2 <- finalizeTypeDefs(a2, t2)
-                    } yield a2
-                    case _ => throw InternalError("expected type")
-                  }
-                }
+                a1 <- visitExprs(a1, structMemberType)
+                a1 <- finalizeTypeDefs(a1, structMemberType)
               } yield a1
             }
             a <- FinalizeTypeDefs.defStructAnnotatedNode(a, ty.node)
