@@ -239,34 +239,9 @@ object EvalConstantExprs extends UseAnalyzer {
     def visitExprs(a: Analysis, t: Type): Result.Result[Analysis] = {
       t match {
         case ty: Type.AliasType => visitExprs(a, ty.aliasType)
-        case ty: Type.Array => 
-          for {
-            a <- typeNameNode(a, ty.node._2.data.eltType)
-            a <- exprNode(a, ty.node._2.data.size)
-          } yield a
-        case ty: Type.Enum  =>
-          for {
-            a <- opt(exprNode)(a, ty.node._2.data.default)
-            a <- ty.node._2.data.constants.foldLeft(Right(a): Result.Result[Analysis]) {
-              (res, enumConstantNode) =>
-                for {
-                  a1 <- res
-                  a1 <- defEnumConstantAnnotatedNode(a1, enumConstantNode)
-                } yield a1
-            }
-            a <- opt(typeNameNode)(a, ty.node._2.data.typeName)
-          } yield a
-        case ty: Type.Struct => 
-          for {
-            a <- opt(exprNode)(a, ty.node._2.data.default)
-            a <- ty.node._2.data.members.foldLeft(Right(a): Result.Result[Analysis]) {
-              (res, structMemberNode) => for {
-                a1 <- res
-                a1 <- opt(exprNode)(a1, structMemberNode._2.data.size)
-                a1 <- typeNameNode(a1, structMemberNode._2.data.typeName)
-              } yield a1
-            }
-          } yield a
+        case ty: Type.Array => defArrayAnnotatedNode(a, ty.node)
+        case ty: Type.Enum  => defEnumAnnotatedNode(a, ty.node)
+        case ty: Type.Struct => defStructAnnotatedNode(a, ty.node)
         case _ => Right(a)
       }
     }
