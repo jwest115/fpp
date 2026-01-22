@@ -50,6 +50,14 @@ trait BasicUseAnalyzer extends TypeExpressionAnalyzer {
     } yield a
   }
 
+  override def exprSizeOfNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprSizeOf) = {
+    val id = node.id
+    for {
+      a <- visitImpliedUses(a, id)
+      a <- super.exprSizeOfNode(a, node, e)
+    } yield a
+  }
+
   override def exprDotNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprDot) = {
     def nameOpt(e: Ast.Expr, qualifier: List[Name.Unqualified]): Option[Name.Qualified] = {
       e match {

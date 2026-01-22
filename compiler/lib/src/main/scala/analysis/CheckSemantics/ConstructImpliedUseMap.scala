@@ -7,6 +7,7 @@ import fpp.compiler.util._
 object ConstructImpliedUseMap
   extends Analyzer
   with ModuleAnalyzer
+  with TypeExpressionAnalyzer
 {
 
   override def defTopologyAnnotatedNode(
@@ -31,6 +32,24 @@ object ConstructImpliedUseMap
       m + (ImpliedUse.Kind.Constant -> (set + impliedUse))
     })
     Right(a.copy(impliedUseMap = a.impliedUseMap + (id -> map)))
+  }
+
+  override def exprSizeOfNode(
+    a: Analysis,
+    node: AstNode[Ast.Expr], 
+    e: Ast.ExprSizeOf
+  ) = {
+    val id = node.id
+    val typeNames = ImpliedUse.getSizeOfTypes(a)
+    val empty: ImpliedUse.Uses = Map()
+    val typeMap = typeNames.foldLeft (empty) ((m, tn) => {
+      val id1 = ImpliedUse.replicateId(id)
+      val impliedUse = ImpliedUse.fromIdentListAndId(tn, id1)
+      val set = m.get(ImpliedUse.Kind.Type).getOrElse(Set())
+      m + (ImpliedUse.Kind.Type -> (set + impliedUse))
+    })
+    
+    Right(a.copy(impliedUseMap = a.impliedUseMap + (id -> typeMap)))
   }
 
 }

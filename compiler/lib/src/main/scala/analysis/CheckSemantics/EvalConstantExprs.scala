@@ -185,52 +185,52 @@ object EvalConstantExprs extends UseAnalyzer {
   }
 
   override def exprSizeOfNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprSizeOf) = {
-    def computeTypeSize(t: Type): Result.Result[BigInt] = {
+
+    def getFwSizeStoreTypeSymbol(a: Analysis): Symbol = {
+      val fwSizeStoreTypeName = Name.Qualified(Nil, "FwSizeStoreType")
+      val impliedUse = a.getImpliedUses(ImpliedUse.Kind.Type, node.id).find(_.name == fwSizeStoreTypeName)
+      impliedUse match {
+        case Some(use) => a.useDefMap(use.id)
+        case None => throw InternalError("FwSizeStoreType implied use expected")
+      }
+    }
+
+    def computeTypeSize(a: Analysis, t: Type): BigInt = {
       t match
         case Type.PrimitiveInt(kind) =>
           kind match
-            case Type.PrimitiveInt.I8 => Right(1)
-            case Type.PrimitiveInt.I16 => Right(2)
-            case Type.PrimitiveInt.I32 => Right(4)
-            case Type.PrimitiveInt.I64 => Right(8)
-            case Type.PrimitiveInt.U8 => Right(1)
-            case Type.PrimitiveInt.U16 => Right(2)
-            case Type.PrimitiveInt.U32 => Right(4)
-            case Type.PrimitiveInt.U64 => Right(8)
-        case Type.Integer => Right(8) // arbitrary width integer
+            case Type.PrimitiveInt.I8  | Type.PrimitiveInt.U8  => 1
+            case Type.PrimitiveInt.I16 | Type.PrimitiveInt.U16 => 2
+            case Type.PrimitiveInt.I32 | Type.PrimitiveInt.U32 => 4
+            case Type.PrimitiveInt.I64 | Type.PrimitiveInt.U64 => 8
+        case Type.Integer => 8 // arbitrary width integer
         case Type.Float(kind) => 
           kind match
-            case Type.Float.F32 => Right(4)
-            case Type.Float.F64 => Right(8)
-        case Type.Boolean => Right(1)
+            case Type.Float.F32 => 4
+            case Type.Float.F64 => 8
+        case Type.Boolean => 1
         case Type.String(size) => {
-          size match {
-            case Some(AstNode(Ast.ExprLiteralInt(s), _)) => Right(BigInt(s))
-            case _ => Right(80) // 80 default taken from CppWriterState
+          val storeSizeType = a.typeMap(getFwSizeStoreTypeSymbol(a).getNodeId)
+          val stringDataSize = size match {
+            case Some(AstNode(Ast.ExprLiteralInt(s), _)) => BigInt(s)
+            case _ => BigInt(80) // 80 default taken from CppWriterState
           }
+          val storeSize = computeTypeSize(a, storeSizeType)
+          storeSize + stringDataSize
         }
-        case t: Type.AliasType =>
-          computeTypeSize(t.getUnderlyingType)
+        case t: Type.AliasType => computeTypeSize(a, t.getUnderlyingType)
         case t: Type.Array => {
           val arraySize = t.getArraySize match {
             case Some(as) => BigInt(as)
             case _ => throw InternalError("expected array size")
           }
-          for {
-            arrayTypeSize <- computeTypeSize(t.anonArray.eltType)
-          } yield {
-            arrayTypeSize * arraySize
-          }
+          val arrayTypeSize = computeTypeSize(a, t.anonArray.eltType)
+          arrayTypeSize * arraySize
         }
-        case Type.Enum(_, repType, _) => computeTypeSize(repType)
+        case Type.Enum(_, repType, _) => computeTypeSize(a, repType)
         case Type.Struct(_, anonStruct, _, _, _) => {
-          anonStruct.members.values.foldLeft(
-            Right(BigInt(0)): Result.Result[BigInt]
-          ) { (acc, t) =>
-            for {
-              accRes <- acc
-              size <- computeTypeSize(t)
-            } yield accRes + size
+          anonStruct.members.values.foldLeft(BigInt(0): BigInt) { 
+            (acc, t) => acc + computeTypeSize(a, t)
           }
         }
         case _ => throw InternalError("invalid type")
@@ -270,29 +270,46 @@ object EvalConstantExprs extends UseAnalyzer {
         case _ => Right(a)
       }
     }
-    a.typeMap.get(e.typeName.id) match {
-      case Some(t) => {
-        e.typeName.data match {
-          case Ast.TypeNameQualIdent(_) => {
-            for {
-              a <- visitExprs(a, t)
-              a <- finalizeTypeDefs(a, t)
-              typeDefId <- t.getDefNodeId match {
-                case Some(id) => Right(id)
-                case _ => throw InternalError("expected type def node id")
-              }
-              size <- computeTypeSize(a.typeMap(typeDefId))
-            } yield a.assignValue(node -> Value.Integer(size))
-          }
-          case _ => {
-            for {
-              size <- computeTypeSize(t)
-            } yield a.assignValue(node -> Value.Integer(size))
+  
+    for {
+        // Check that the FwSizeStoreType symbol follows the rules of CheckFrameworkDefs
+        // Then finalize the type definition
+        a <- {
+          val symbol: Symbol = getFwSizeStoreTypeSymbol(a)
+          for {
+            a <- symbol match {
+              case Symbol.AbsType(node) => CheckFrameworkDefs.defAbsTypeAnnotatedNode(a, node)
+              case Symbol.AliasType(node) => CheckFrameworkDefs.defAliasTypeAnnotatedNode(a, node)
+              case Symbol.Array(node) => CheckFrameworkDefs.defArrayAnnotatedNode(a, node)
+              case Symbol.Enum(node) => CheckFrameworkDefs.defEnumAnnotatedNode(a, node)
+              case Symbol.Struct(node) => CheckFrameworkDefs.defStructAnnotatedNode(a, node)
+              case _ => throw InternalError("invalid symbol")
+            }
+            a <- finalizeTypeDefs(a, a.typeMap(symbol.getNodeId))
+          } yield a
+        }
+        a <- {
+          // Get the type name from the type map
+          val t = a.typeMap(e.typeName.id)
+          // If the type name is a qualified identifier, visit any
+          // expressions appearing in the type and finalize 
+          // the type definition before computing the size of the type
+          e.typeName.data match {
+            case Ast.TypeNameQualIdent(_) => {
+              for {
+                a <- visitExprs(a, t)
+                a <- finalizeTypeDefs(a, t)
+                typeDefId <- t.getDefNodeId match {
+                  case Some(id) => Right(id)
+                  case _ => throw InternalError("expected type def node id")
+                }
+              } yield a.assignValue(node -> Value.Integer(computeTypeSize(a, a.typeMap(typeDefId))))
+            }
+            // Otherwise, compute the size of the type
+            case _ => Right(a.assignValue(node -> Value.Integer(computeTypeSize(a, t))))
           }
         }
-      }
-      case _ => throw InternalError("expected type")
-    }
+    } yield a
   }
 
   override def exprStructNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprStruct) =

@@ -188,6 +188,25 @@ object CheckUses extends BasicUseAnalyzer {
     } yield a
   }
 
+  override def exprSizeOfNode(
+    a: Analysis,
+    node: AstNode[Ast.Expr], 
+    e: Ast.ExprSizeOf
+  ) = {
+    val impliedTypeUses = a.getImpliedUses(ImpliedUse.Kind.Type, node.id).toList
+    for {
+      _ <- Result.foldLeft (impliedTypeUses) (()) ((_, itu) => {
+        for {
+          _ <- Result.annotateResult(
+            typeUse(a, itu.asTypeNameNode, itu.name),
+            s"when using sizeof, the type ${itu.name} must be defined"
+          )
+        } yield ()
+      })
+      a <- super.exprSizeOfNode(a, node, e)
+    } yield a
+  }
+
   override def portUse(a: Analysis, node: AstNode[Ast.QualIdent], use: Name.Qualified) =
     helpers.visitQualIdentNode (NameGroup.Port) (a, node)
 

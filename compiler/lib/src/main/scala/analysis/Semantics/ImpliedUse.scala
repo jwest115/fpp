@@ -81,6 +81,9 @@ object ImpliedUse {
     )
     else Nil
 
+  def getSizeOfTypes(a: Analysis) =
+    List(List("FwSizeStoreType"))
+    
   def replicateId(id: AstNode.Id) = {
     val loc = Locations.get(id)
     val id1 = AstNode.getId
