@@ -1,0 +1,7 @@
+fpp-check
+[ local path prefix ]/compiler/tools/fpp-check/test/expr/sizeof_fw_store_type_not_defined.fpp:1.14
+constant c = sizeof(U32)
+             ^
+error: symbol FwSizeStoreType is not defined
+note: looking for a type here
+note: when using sizeof, the type FwSizeStoreType must be defined

@@ -303,5 +303,9 @@ module Expressions {
   constant structExp = { a = 1, b = 2, c = 3 }
   @< Struct
 
+  @ Sizeof
+  constant sizeofExp = sizeof(F64)
+  constant sizeofExp2 = sizeof(TypeNames.typeNameU32)
+  constant sizeofExp3 = sizeof(string size 20)
 }
 @< Expressions

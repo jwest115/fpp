@@ -249,13 +249,16 @@ object EvalConstantExprs extends UseAnalyzer {
     def finalizeTypeDefs(a: Analysis, t: Type): Result.Result[Analysis] = {
       t match {
         case ty: Type.AliasType => FinalizeTypeDefs.defAliasTypeAnnotatedNode(a, ty.node)
-        case ty: Type.Array => for {
-          a <- visitExprs(a, ty.anonArray.eltType)
-          a <- finalizeTypeDefs(a, ty.anonArray.eltType)
-          a <- FinalizeTypeDefs.defArrayAnnotatedNode(a, ty.node)
-        } yield a
+        case ty: Type.Array =>
+          // Visit any expressions appearing in the element type, then finalize the type
+          for {
+            a <- visitExprs(a, ty.anonArray.eltType)
+            a <- finalizeTypeDefs(a, ty.anonArray.eltType)
+            a <- FinalizeTypeDefs.defArrayAnnotatedNode(a, ty.node)
+          } yield a
         case ty: Type.Enum => FinalizeTypeDefs.defEnumAnnotatedNode(a, ty.node)
         case ty: Type.Struct => {
+          // Visit any expressions appearing in each struct member type, then finalize each type
           for {
             a <- ty.anonStruct.members.values.foldLeft(Right(a): Result.Result[Analysis]) {
               (res, structMemberType) => for {
