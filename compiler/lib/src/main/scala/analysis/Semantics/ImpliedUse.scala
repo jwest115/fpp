@@ -83,6 +83,9 @@ object ImpliedUse {
 
   def getSizeOfTypes(a: Analysis) =
     List(List("FwSizeStoreType"))
+
+  def getSizeOfConstants(a: Analysis) =
+    List(List("FW_FIXED_LENGTH_STRING_SIZE"))
     
   def replicateId(id: AstNode.Id) = {
     val loc = Locations.get(id)

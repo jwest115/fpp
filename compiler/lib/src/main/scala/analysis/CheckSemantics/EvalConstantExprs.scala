@@ -184,14 +184,31 @@ object EvalConstantExprs extends UseAnalyzer {
       yield a.assignValue(node -> a.valueMap(e.e.id))
   }
 
-  override def exprSizeOfNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprSizeOf) = {
-
+  override def exprSizeOfNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprSizeOf) = {    
     def getFwSizeStoreTypeSymbol(a: Analysis): Symbol = {
       val fwSizeStoreTypeName = Name.Qualified(Nil, "FwSizeStoreType")
       val impliedUse = a.getImpliedUses(ImpliedUse.Kind.Type, node.id).find(_.name == fwSizeStoreTypeName)
       impliedUse match {
         case Some(use) => a.useDefMap(use.id)
         case None => throw InternalError("FwSizeStoreType implied use expected")
+      }
+    }
+
+    // Retrieve symbols from implied uses for the expr sizeof node since 
+    // they are not in the analysis framework definitions until CheckFrameworkDefs runs
+    def getFwFixedLengthStringSizeSymbol(a: Analysis): Symbol = {
+      val fwFixedLengthStringSizeName = Name.Qualified(Nil, "FW_FIXED_LENGTH_STRING_SIZE")
+      val impliedUse = a.getImpliedUses(ImpliedUse.Kind.Constant, node.id).find(_.name == fwFixedLengthStringSizeName)
+      impliedUse match {
+        case Some(use) => a.useDefMap(use.id)
+        case None => throw InternalError("FW_FIXED_LENGTH_STRING_SIZE implied use expected")
+      }
+    }
+
+    def getFwDefaultStringSize(a: Analysis): BigInt = {
+      a.valueMap(getFwFixedLengthStringSizeSymbol(a).getNodeId) match {
+        case Value.Integer(value) => value
+        case _ => throw InternalError("expected integer value")
       }
     }
 
@@ -213,7 +230,7 @@ object EvalConstantExprs extends UseAnalyzer {
           val storeSizeType = a.typeMap(getFwSizeStoreTypeSymbol(a).getNodeId)
           val stringDataSize = size match {
             case Some(AstNode(Ast.ExprLiteralInt(s), _)) => BigInt(s)
-            case _ => BigInt(80) // 80 default taken from CppWriterState
+            case _ => getFwDefaultStringSize(a)
           }
           val storeSize = computeTypeSize(a, storeSizeType)
           storeSize + stringDataSize
@@ -273,22 +290,30 @@ object EvalConstantExprs extends UseAnalyzer {
         case _ => Right(a)
       }
     }
+
+    def checkFrameworkDefs(a: Analysis, s: Symbol): Result.Result[Analysis] = {
+      s match {
+        case Symbol.AbsType(node) => CheckFrameworkDefs.defAbsTypeAnnotatedNode(a, node)
+        case Symbol.AliasType(node) => CheckFrameworkDefs.defAliasTypeAnnotatedNode(a, node)
+        case Symbol.Array(node) => CheckFrameworkDefs.defArrayAnnotatedNode(a, node)
+        case Symbol.Enum(node) => CheckFrameworkDefs.defEnumAnnotatedNode(a, node)
+        case Symbol.Struct(node) => CheckFrameworkDefs.defStructAnnotatedNode(a, node)
+        case Symbol.Constant(node) => CheckFrameworkDefs.defConstantAnnotatedNode(a, node)
+        case _ => throw InternalError("invalid symbol")
+      }
+    }
   
     for {
-        // Check that the FwSizeStoreType symbol follows the rules of CheckFrameworkDefs
+        // Check that the FwSizeStoreType and FW_FIXED_LENGTH_STRING_SIZE symbols follow the rules of CheckFrameworkDefs
         // Then finalize the type definition
         a <- {
-          val symbol: Symbol = getFwSizeStoreTypeSymbol(a)
+          val fwSizeStoreTypeSymbol = getFwSizeStoreTypeSymbol(a)
+          val fwFixedLengthStringSizeSymbol = getFwFixedLengthStringSizeSymbol(a)
           for {
-            a <- symbol match {
-              case Symbol.AbsType(node) => CheckFrameworkDefs.defAbsTypeAnnotatedNode(a, node)
-              case Symbol.AliasType(node) => CheckFrameworkDefs.defAliasTypeAnnotatedNode(a, node)
-              case Symbol.Array(node) => CheckFrameworkDefs.defArrayAnnotatedNode(a, node)
-              case Symbol.Enum(node) => CheckFrameworkDefs.defEnumAnnotatedNode(a, node)
-              case Symbol.Struct(node) => CheckFrameworkDefs.defStructAnnotatedNode(a, node)
-              case _ => throw InternalError("invalid symbol")
-            }
-            a <- finalizeTypeDefs(a, a.typeMap(symbol.getNodeId))
+            a <- checkFrameworkDefs(a, fwSizeStoreTypeSymbol)
+            a <- checkFrameworkDefs(a, fwFixedLengthStringSizeSymbol)
+            a <- finalizeTypeDefs(a, a.typeMap(fwSizeStoreTypeSymbol.getNodeId))
+            a <- finalizeTypeDefs(a, a.typeMap(fwFixedLengthStringSizeSymbol.getNodeId))
           } yield a
         }
         a <- {

@@ -49,7 +49,13 @@ object ConstructImpliedUseMap
       m + (ImpliedUse.Kind.Type -> (set + impliedUse))
     })
     
-    Right(a.copy(impliedUseMap = a.impliedUseMap + (id -> typeMap)))
+    val constants = ImpliedUse.getSizeOfConstants(a)
+    val map = constants.foldLeft (typeMap) ((m, c) => {
+      val id1 = ImpliedUse.replicateId(id)
+      val impliedUse = ImpliedUse.fromIdentListAndId(c, id1)
+      val set = m.get(ImpliedUse.Kind.Constant).getOrElse(Set())
+      m + (ImpliedUse.Kind.Constant -> (set + impliedUse))
+    })
+    Right(a.copy(impliedUseMap = a.impliedUseMap + (id -> map)))  
   }
-
 }
