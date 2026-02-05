@@ -182,6 +182,18 @@ trait BasicUseAnalyzer extends TypeExpressionAnalyzer {
     typeUse(a, node, use)
   }
 
+  override def typeNameStringNode(
+    a: Analysis, 
+    node: AstNode[Ast.TypeName], 
+    tn: Ast.TypeNameString
+  ) = {
+    val id = node.id
+    for {
+      a <- visitImpliedUses(a, id)
+      a <- super.typeNameStringNode(a, node, tn)
+    } yield a
+  }
+
   private def portInstanceIdentifierNode(a: Analysis, node: AstNode[Ast.PortInstanceIdentifier]): Result =
     qualIdentNode (componentInstanceUse) (a, node.data.componentInstance)
 

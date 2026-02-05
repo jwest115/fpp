@@ -81,6 +81,10 @@ object ImpliedUse {
     )
     else Nil
 
+
+  def getStringTypeNameConstants(a: Analysis) =
+    List(List("FW_FIXED_LENGTH_STRING_SIZE"))
+
   def replicateId(id: AstNode.Id) = {
     val loc = Locations.get(id)
     val id1 = AstNode.getId

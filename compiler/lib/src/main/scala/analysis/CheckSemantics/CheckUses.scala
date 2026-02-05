@@ -224,4 +224,52 @@ object CheckUses extends BasicUseAnalyzer {
     }
   }
 
+  override def typeNameStringNode(
+    a: Analysis, 
+    node: AstNode[Ast.TypeName], 
+    tn: Ast.TypeNameString
+  ) = {
+    val impliedConstantUses = a.getImpliedUses(ImpliedUse.Kind.Constant, node.id).toList
+    for {
+      _ <- Result.foldLeft (impliedConstantUses) (()) ((_, itu) => {
+        val impliedUse = itu.asUniqueExprNode
+
+        for {
+          a <- {
+            Result.annotateResult(
+              constantUse(a, impliedUse, itu.name),
+              s"string type names require that the constant ${itu.name} is defined"
+            )
+          }
+
+          // Check to make sure this implied use is actually a constant
+          // ...rather than a member of a constant.
+          _ <- {
+            a.useDefMap.get(impliedUse.id) match {
+              case Some(Symbol.Constant(_) | Symbol.EnumConstant(_)) => Right(a)
+              case Some(_) => throw new InternalError("not a constant use or member")
+              case x =>
+                // Get the parent symbol to make the error reporting better
+                def getSymbolOfExpr(e: AstNode[Expr]): Symbol = {
+                  (a.useDefMap.get(e.id), e.data) match {
+                    case (Some(sym), _) => sym
+                    case (None, Ast.ExprDot(ee, eid)) => getSymbolOfExpr(ee)
+                    case _ => throw new InternalError("expected a constant use")
+                  }
+                }
+
+                val sym = getSymbolOfExpr(impliedUse)
+                Left(SemanticError.InvalidSymbol(
+                  sym.getUnqualifiedName,
+                  Locations.get(impliedUse.id),
+                  s"${itu.name} must be a constant symbol",
+                  sym.getLoc
+                ))
+            }
+          }
+        } yield ()
+      })
+      a <- super.typeNameStringNode(a, node, tn)
+    } yield a
+  }
 }
