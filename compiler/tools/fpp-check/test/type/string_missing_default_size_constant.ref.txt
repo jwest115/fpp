@@ -1,0 +1,7 @@
+fpp-check
+[ local path prefix ]/compiler/tools/fpp-check/test/type/string_missing_default_size_constant.fpp:1.10
+type s = string
+         ^
+error: symbol FW_FIXED_LENGTH_STRING_SIZE is not defined
+note: looking for a constant here
+note: string type names require that the constant FW_FIXED_LENGTH_STRING_SIZE is defined

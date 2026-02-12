@@ -7,3 +7,4 @@ struct AliasType {
     y: TAlias,
     z: [10] SAlias
 }
+type FwSizeStoreType = U16

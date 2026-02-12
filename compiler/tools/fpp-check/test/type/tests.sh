@@ -2,6 +2,8 @@ tests="
 alias_dictionary_not_displayable
 alias_dictionary_ok
 alias_type_ok
+string_missing_default_size_constant
+string_missing_fw_size_store_type
 string_size_negative
 string_size_not_numeric
 string_size_too_large

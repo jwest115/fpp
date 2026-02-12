@@ -5,3 +5,6 @@ port P3(a: F32) -> F32
 type Time
 port Time1 -> Time
 port Time2(ref t: Time)
+
+type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
