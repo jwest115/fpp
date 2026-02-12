@@ -1,3 +1,5 @@
+type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
 array A_use = [3] A
 constant a_use = a
 array T_use = [3] T

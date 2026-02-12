@@ -71,15 +71,30 @@ object ConstructImpliedUseMap
     node: AstNode[Ast.TypeName], tn: Ast.TypeNameString
   ) = {
     val id = node.id
-    val constants = ImpliedUse.getStringTypeNameConstants(a)
+    val constants = ImpliedUse.getStringTypeNameDefaultSizeConstant(a)
+    val typeNames = ImpliedUse.getStringTypeNameTypes(a)
     val empty: ImpliedUse.Uses = Map()
-    val map = constants.foldLeft (empty) ((m, c) => {
+    val typeMap = typeNames.foldLeft (empty) ((m, tn) => {
       val id1 = ImpliedUse.replicateId(id)
-      val impliedUse = ImpliedUse.fromIdentListAndId(c, id1)
-      val set = m.get(ImpliedUse.Kind.Constant).getOrElse(Set())
-      m + (ImpliedUse.Kind.Constant -> (set + impliedUse))
+      val impliedUse = ImpliedUse.fromIdentListAndId(tn, id1)
+      val set = m.get(ImpliedUse.Kind.Type).getOrElse(Set())
+      m + (ImpliedUse.Kind.Type -> (set + impliedUse))
     })
-    Right(a.copy(impliedUseMap = a.impliedUseMap + (id -> map)))
+    // Only require string default size constant when a size is
+    // not specified for a string
+    tn.size match {
+      case Some(s) => Right(a.copy(impliedUseMap = a.impliedUseMap + (id -> typeMap)))
+      case None => {
+        val constants = ImpliedUse.getStringTypeNameDefaultSizeConstant(a)
+        val map = constants.foldLeft (typeMap) ((m, c) => {
+          val id1 = ImpliedUse.replicateId(id)
+          val impliedUse = ImpliedUse.fromIdentListAndId(c, id1)
+          val set = m.get(ImpliedUse.Kind.Constant).getOrElse(Set())
+          m + (ImpliedUse.Kind.Constant -> (set + impliedUse))
+        })
+        Right(a.copy(impliedUseMap = a.impliedUseMap + (id -> map)))
+      }
+    }
   }
 
 }

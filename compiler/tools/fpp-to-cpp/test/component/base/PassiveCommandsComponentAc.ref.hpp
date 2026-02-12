@@ -28,6 +28,7 @@
 #include "Fw/Prm/PrmSetPortAc.hpp"
 #include "Fw/Time/TimePortAc.hpp"
 #include "Fw/Tlm/TlmPortAc.hpp"
+#include "FwSizeStoreTypeAliasAc.hpp"
 #include "NoArgsAliasStringReturnPortAc.hpp"
 #include "NoArgsPortAc.hpp"
 #include "NoArgsReturnPortAc.hpp"

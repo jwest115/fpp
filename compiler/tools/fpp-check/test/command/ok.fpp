@@ -8,6 +8,9 @@ module Fw {
 
 active component C {
 
+  type FwSizeStoreType = U16
+  constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
   command recv port cmdIn
   command reg port cmdRegOut
   command resp port cmdResponseOut

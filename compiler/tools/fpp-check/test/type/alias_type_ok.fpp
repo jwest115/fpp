@@ -10,6 +10,9 @@ struct SS {
     F3: bool
 }
 
+type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
 type TU = U32
 type TS = string size 20
 type TE = E1T

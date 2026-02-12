@@ -197,6 +197,7 @@ object CheckUses extends BasicUseAnalyzer {
     node: AstNode[Ast.TypeName], 
     tn: Ast.TypeNameString
   ) = {
+    val impliedTypeUses = a.getImpliedUses(ImpliedUse.Kind.Type, node.id).toList
     val impliedConstantUses = a.getImpliedUses(ImpliedUse.Kind.Constant, node.id).toList
     for {
       a <- Result.foldLeft (impliedConstantUses) (a) ((a, iu) => {
@@ -206,8 +207,15 @@ object CheckUses extends BasicUseAnalyzer {
             constantUse(a, exprNode, iu.name),
             s"string type names require that the constant ${iu.name} is defined"
           )
-          _ <- checkImpliedUseIsConstantDef(a, iu, exprNode)
         } yield a
+      })
+      _ <- Result.foldLeft (impliedTypeUses) (()) ((_, itu) => {
+        for {
+          a <- Result.annotateResult(
+            typeUse(a, itu.asTypeNameNode, itu.name),
+              s"string type names require that the type ${itu.name} is defined"
+          )
+        } yield ()
       })
       a <- super.typeNameStringNode(a, node, tn)
     } yield a

@@ -83,7 +83,10 @@ object ImpliedUse {
     else Nil
 
 
-  def getStringTypeNameConstants(a: Analysis) =
+  def getStringTypeNameTypes(a: Analysis) =
+    List(List("FwSizeStoreType"))
+
+  def getStringTypeNameDefaultSizeConstant(a: Analysis) =
     List(List("FW_FIXED_LENGTH_STRING_SIZE"))
 
   def replicateId(id: AstNode.Id) = {

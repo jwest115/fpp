@@ -1,0 +1,2 @@
+fpp-check
+error: cannot open file [ local path prefix ]/compiler/tools/fpp-check/test/type/string_missing_fw_size_store_type.fpp

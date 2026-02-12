@@ -8,6 +8,7 @@
 #define AliasStringAliasAc_HPP
 
 #include "Fw/Types/String.hpp"
+#include "FwSizeStoreTypeAliasAc.hpp"
 
 //! Alias of a string
 using AliasString = Fw::String;

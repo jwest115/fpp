@@ -72,9 +72,6 @@ constant SIZE_OF_FwOpcodeType = SIZE_OF_FwIdType  @< Size of FwOpcodeType in byt
 type FwPrmIdType = FwIdType
 constant SIZE_OF_FwPrmIdType = SIZE_OF_FwIdType  @< Size of FwPrmIdType in bytes
 
-@ The type used to serialize a size value
-type FwSizeStoreType = U16
-
 @ The type used to serialize a time context value
 type FwTimeContextStoreType = U8
 

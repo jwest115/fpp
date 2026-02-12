@@ -18,6 +18,7 @@
 #include "Fw/Port/OutputPortBase.hpp"
 #include "Fw/Types/Serializable.hpp"
 #include "Fw/Types/String.hpp"
+#include "FwSizeStoreTypeAliasAc.hpp"
 #include "SSerializableAc.hpp"
 
 namespace Ports {
