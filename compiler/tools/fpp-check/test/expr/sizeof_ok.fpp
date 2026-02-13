@@ -47,10 +47,11 @@ enum E2: U32 {
 
 array A = [1] A3
 array A2 = [1] S
-array A3 = [3] string size 30
+array A3 = [3] string
 
 type T = U32
 type T2 = A3
 type T3 = S
 
 type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256

@@ -185,11 +185,11 @@ object EvalConstantExprs extends UseAnalyzer {
   }
 
   override def exprSizeOfNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprSizeOf) = {    
-    def getFwSizeStoreTypeSymbol(a: Analysis): TypeSymbol =
-      a.frameworkDefinitions.typeMap("FwSizeStoreType")
+    def getFwSizeStoreTypeSymbol(a: Analysis): Option[TypeSymbol] =
+      a.frameworkDefinitions.typeMap.get("FwSizeStoreType")
 
     def getFwFixedLengthStringSizeSymbol(a: Analysis): Option[Symbol.Constant] =
-      a.frameworkDefinitions.constantMap.get("FW_FIXED_LENGTH_STRING_SIZE")
+      a.frameworkDefinitions.constantMap.get("FW_FIXED_LENGTH_STRING_SIZE")      
 
     def getFwDefaultStringSize(a: Analysis): BigInt = {
       getFwFixedLengthStringSizeSymbol(a) match {
@@ -216,13 +216,18 @@ object EvalConstantExprs extends UseAnalyzer {
             case Type.Float.F64 => 8
         case Type.Boolean => 1
         case Type.String(size) => {
-          val storeSizeType = a.typeMap(getFwSizeStoreTypeSymbol(a).getNodeId)
-          val stringDataSize = size match {
-            case Some(AstNode(Ast.ExprLiteralInt(s), _)) => BigInt(s)
-            case _ => getFwDefaultStringSize(a)
+          getFwSizeStoreTypeSymbol(a) match {
+            case Some(symbol) => {
+              val storeSizeType = a.typeMap(symbol.getNodeId)
+              val stringDataSize = size match {
+                case Some(AstNode(Ast.ExprLiteralInt(s), _)) => BigInt(s)
+                case _ => getFwDefaultStringSize(a)
+              }
+              val storeSize = computeTypeSize(a, storeSizeType)
+              storeSize + stringDataSize
+            }
+            case None => throw InternalError("expected FwSizeStoreType")
           }
-          val storeSize = computeTypeSize(a, storeSizeType)
-          storeSize + stringDataSize
         }
         case t: Type.AliasType => computeTypeSize(a, t.getUnderlyingType)
         case t: Type.Array => {
@@ -297,7 +302,13 @@ object EvalConstantExprs extends UseAnalyzer {
         // Then finalize the type definition
         a <- {
           for {
-            a <- finalizeTypeDefs(a, a.typeMap(getFwSizeStoreTypeSymbol(a).getNodeId))
+            a <- {
+              val fwFixedLengthStringSizeSymbol = getFwSizeStoreTypeSymbol(a)
+              fwFixedLengthStringSizeSymbol match {
+                case Some(symbol) => finalizeTypeDefs(a, a.typeMap(symbol.getNodeId))
+                case None => Right(a)
+              }
+            }
             a <- {
               val fwFixedLengthStringSizeSymbol = getFwFixedLengthStringSizeSymbol(a)
               fwFixedLengthStringSizeSymbol match {
