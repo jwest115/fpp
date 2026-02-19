@@ -116,6 +116,7 @@ h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title str
 :not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
 pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
 pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
 pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
 em em{font-style:normal}
 strong strong{font-weight:400}
@@ -218,7 +219,6 @@ table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
 .literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class=highlight],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
 .literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
 .listingblock>.content{position:relative}
-.listingblock pre>code{display:block}
 .listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
 .listingblock:hover code[data-lang]::before{display:block}
 .listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
@@ -2294,25 +2294,38 @@ of width 32 and 64 bits.</p>
 <li>
 <p>The type name <code>string</code>, denoting the type of
 <a href="#Defining-Constants_Expressions_String-Values">string values</a>.
-The
-<a href="#Defining-Constants_Framework-Constants">framework constant</a>
-<code>FW_FIXED_LENGTH_STRING_SIZE</code> specifies the
+The <code>string</code> type name requires that the <code>FwSizeStoreType</code>
+<a href="#Defining-Types_Framework-Types">framework type</a>
+and <code>FW_FIXED_LENGTH_STRING_SIZE</code>
+<a href="#Defining-Constants_Framework-Constants">framework constant</a> is defined
+in the model.
+The framework constant <code>FW_FIXED_LENGTH_STRING_SIZE</code> specifies the
 maximum string length of any value of type <code>string</code> when it
 is represented in the F Prime framework.
 For example:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp"># A is an array of 3 strings with size FW_FIXED_LENGTH_STRING_SIZE
+<pre class="prettyprint highlight"><code data-lang="fpp"># Framework type required when using strings
+type FwSizeStoreType = U16
+# Framework constant required when using strings without a size
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+# A is an array of 3 strings with size FW_FIXED_LENGTH_STRING_SIZE
 array A = [3] string</code></pre>
 </div>
 </div>
 </li>
 <li>
 <p>The type name <code>string size</code> <em>e</em>, where <em>e</em> is a numeric expression
-specifying the maximum string length of any value of that type.</p>
+specifying the maximum string length of any value of that type.
+The <code>string size</code> type name requires that the <code>FwSizeStoreType</code> framework
+type is defined in the model. Note that it does <em>not</em> require the
+<code>FW_FIXED_LENGTH_STRING_SIZE</code> framework constant to be defined since the size
+is specified by the <em>e</em> numeric expression.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp"># A is an array of 3 strings with size 40
+<pre class="prettyprint highlight"><code data-lang="fpp"># Framework type required when using strings
+type FwSizeStoreType = U16
+# A is an array of 3 strings with size 40
 array A = [3] string size 40</code></pre>
 </div>
 </div>
@@ -2560,7 +2573,10 @@ a struct type containing two members: <code>x</code> of type <code>U32</code>, a
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">struct S { x: U32, y: string }</code></pre>
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+struct S { x: U32, y: string }</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2595,7 +2611,10 @@ So, for example, we can write the definition shown above in this alternate way:<
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">struct S {
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+struct S {
   x: U32
   y: string
 }</code></pre>
@@ -2614,7 +2633,10 @@ Here is an example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">@ This is a pre annotation for struct S
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+@ This is a pre annotation for struct S
 struct S {
   @ This is a pre annotation for member x
   x: U32 @&lt; This is a post annotation for member x
@@ -2636,7 +2658,10 @@ For example, here is a struct type <code>S</code> with default value <code>{ x =
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">struct S { x: U32, y: string } default { x = 1, y = "abc" }</code></pre>
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+struct S { x: U32, y: string } default { x = 1, y = "abc" }</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2647,7 +2672,10 @@ value and use it multiple times, like this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">constant s = { x = 1, y = "abc" }
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+constant s = { x = 1, y = "abc" }
 struct S1 { x: U8, y: string } default s
 struct S2 { x: U32, y: string } default s</code></pre>
 </div>
@@ -2684,12 +2712,18 @@ then FPP will fill in the member and give it the default value:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">struct S1 { x: U32, y: string } default { z = 1 } # Error: member z does not match</code></pre>
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+struct S1 { x: U32, y: string } default { z = 1 } # Error: member z does not match</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">struct S2 { x: U32, y: string } default { x = "abc" } # Error: type of member x does not match</code></pre>
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+struct S2 { x: U32, y: string } default { x = "abc" } # Error: type of member x does not match</code></pre>
 </div>
 </div>
 </div>
@@ -2778,7 +2812,10 @@ that member <code>x</code> should be displayed as a hexadecimal value:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">struct Channel {
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+struct Channel {
   name: string
   offset: U32 format "offset 0x{x}"
 }</code></pre>
@@ -2824,7 +2861,10 @@ For example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">array Speeds = [3] U32
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+array Speeds = [3] U32
 # Member speeds has type Speeds, which is an array of 3 U32 values
 struct Wheel { name: string, speeds: Speeds }</code></pre>
 </div>
@@ -2836,7 +2876,10 @@ For example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">array A = [2] U32
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+array A = [2] U32
 struct S1 { x: U32, y: string }
 
 # default value is { s1 = { x = 0, y = "" }, a = [ 0, 0 ] }
@@ -2881,7 +2924,10 @@ For example, this code is legal:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">struct S { x: U32, y: string } default { y = "abc", x = 5 }</code></pre>
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+struct S { x: U32, y: string } default { y = "abc", x = 5 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3433,7 +3479,10 @@ For example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">port P1() # Zero parameters; equivalent to port P1
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
+port P1() # Zero parameters; equivalent to port P1
 port P2(a: U32) # One parameter
 port P3(a: I32, b: F32, c: string) # Three parameters</code></pre>
 </div>
@@ -7691,6 +7740,10 @@ Here is an example:</p>
 <pre class="prettyprint highlight"><code data-lang="fpp">@ A component for illustrating priority and queue full behavior for async
 @ commands
 active component PriorityQueueFull {
+
+  # Framework definitions required by string type names
+  type FwSizeStoreType = U16
+  constant FW_FIXED_LENGTH_STRING_SIZE = 256
 
   # ----------------------------------------------------------------------
   # Ports
@@ -14397,7 +14450,9 @@ all generate aliases to <code>Fw::String</code>, either directly or indirectly:<
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp">type T1 = string size 40 # Generates an alias to Fw::String
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+
+type T1 = string size 40 # Generates an alias to Fw::String
 type T2 = string size 80 # Generates an alias to Fw::String
 type T3 = T2 # Generates an alias to T2, which is an alias to Fw::String</code></pre>
 </div>
@@ -16418,7 +16473,7 @@ serialized according to its
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-02-02 16:38:37 -0800
+Last updated 2026-02-19 13:14:42 -0800
 </div>
 </div>
 <script src="code-prettify/run_prettify.js"></script>
@@ -16445,6 +16500,6 @@ MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
   })
 })
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
 </body>
 </html>
