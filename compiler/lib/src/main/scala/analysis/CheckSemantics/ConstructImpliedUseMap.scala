@@ -71,7 +71,7 @@ object ConstructImpliedUseMap
     node: AstNode[Ast.TypeName], tn: Ast.TypeNameString
   ) = {
     val id = node.id
-    val constants = ImpliedUse.getStringTypeNameDefaultSizeConstant(a)
+    val constants = ImpliedUse.getStringTypeNameConstants(a)
     val typeNames = ImpliedUse.getStringTypeNameTypes(a)
     val empty: ImpliedUse.Uses = Map()
     val typeMap = typeNames.foldLeft (empty) ((m, tn) => {
@@ -85,7 +85,7 @@ object ConstructImpliedUseMap
     tn.size match {
       case Some(s) => Right(a.copy(impliedUseMap = a.impliedUseMap + (id -> typeMap)))
       case None => {
-        val constants = ImpliedUse.getStringTypeNameDefaultSizeConstant(a)
+        val constants = ImpliedUse.getStringTypeNameConstants(a)
         val map = constants.foldLeft (typeMap) ((m, c) => {
           val id1 = ImpliedUse.replicateId(id)
           val impliedUse = ImpliedUse.fromIdentListAndId(c, id1)
