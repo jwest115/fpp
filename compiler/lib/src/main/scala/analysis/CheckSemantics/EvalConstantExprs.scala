@@ -184,69 +184,8 @@ object EvalConstantExprs extends UseAnalyzer {
       yield a.assignValue(node -> a.valueMap(e.e.id))
   }
 
-  override def exprSizeOfNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprSizeOf) = {    
-    def getFwSizeStoreTypeSymbol(a: Analysis): Option[TypeSymbol] =
-      a.frameworkDefinitions.typeMap.get("FwSizeStoreType")
+  override def exprSizeOfNode(a: Analysis, node: AstNode[Ast.Expr], e: Ast.ExprSizeOf) = {
 
-    def getFwFixedLengthStringSizeSymbol(a: Analysis): Option[Symbol.Constant] =
-      a.frameworkDefinitions.constantMap.get("FW_FIXED_LENGTH_STRING_SIZE")      
-
-    def getFwDefaultStringSize(a: Analysis): BigInt = {
-      getFwFixedLengthStringSizeSymbol(a) match {
-        case Some(symbol) => a.valueMap(symbol.getNodeId) match {
-          case Value.Integer(value) => value
-          case _ => throw InternalError("expected integer value")
-        }
-        case None => throw InternalError("expected FW_FIXED_LENGTH_STRING_SIZE constant symbol")
-      }
-    }
-
-    def computeTypeSize(a: Analysis, t: Type): BigInt = {
-      t match
-        case Type.PrimitiveInt(kind) =>
-          kind match
-            case Type.PrimitiveInt.I8  | Type.PrimitiveInt.U8  => 1
-            case Type.PrimitiveInt.I16 | Type.PrimitiveInt.U16 => 2
-            case Type.PrimitiveInt.I32 | Type.PrimitiveInt.U32 => 4
-            case Type.PrimitiveInt.I64 | Type.PrimitiveInt.U64 => 8
-        case Type.Integer => 8 // arbitrary width integer
-        case Type.Float(kind) => 
-          kind match
-            case Type.Float.F32 => 4
-            case Type.Float.F64 => 8
-        case Type.Boolean => 1
-        case Type.String(size) => {
-          getFwSizeStoreTypeSymbol(a) match {
-            case Some(symbol) => {
-              val storeSizeType = a.typeMap(symbol.getNodeId)
-              val stringDataSize = size match {
-                case Some(AstNode(Ast.ExprLiteralInt(s), _)) => BigInt(s)
-                case _ => getFwDefaultStringSize(a)
-              }
-              val storeSize = computeTypeSize(a, storeSizeType)
-              storeSize + stringDataSize
-            }
-            case None => throw InternalError("expected FwSizeStoreType")
-          }
-        }
-        case t: Type.AliasType => computeTypeSize(a, t.getUnderlyingType)
-        case t: Type.Array => {
-          val arraySize = t.getArraySize match {
-            case Some(as) => BigInt(as)
-            case _ => throw InternalError("expected array size")
-          }
-          val arrayTypeSize = computeTypeSize(a, t.anonArray.eltType)
-          arrayTypeSize * arraySize
-        }
-        case Type.Enum(_, repType, _) => computeTypeSize(a, repType)
-        case Type.Struct(_, anonStruct, _, _, _) => {
-          anonStruct.members.values.foldLeft(BigInt(0): BigInt) { 
-            (acc, t) => acc + computeTypeSize(a, t)
-          }
-        }
-        case _ => throw InternalError("invalid type")
-    }
-    
     def visitExprs(a: Analysis, t: Type): Result.Result[Analysis] = {
       t match {
         case ty: Type.AliasType => visitExprs(a, ty.aliasType)
@@ -284,34 +223,13 @@ object EvalConstantExprs extends UseAnalyzer {
         case _ => Right(a)
       }
     }
-
-    def checkFrameworkDefs(a: Analysis, s: Symbol): Result.Result[Analysis] = {
-      s match {
-        case Symbol.AbsType(node) => CheckFrameworkDefs.defAbsTypeAnnotatedNode(a, node)
-        case Symbol.AliasType(node) => CheckFrameworkDefs.defAliasTypeAnnotatedNode(a, node)
-        case Symbol.Array(node) => CheckFrameworkDefs.defArrayAnnotatedNode(a, node)
-        case Symbol.Enum(node) => CheckFrameworkDefs.defEnumAnnotatedNode(a, node)
-        case Symbol.Struct(node) => CheckFrameworkDefs.defStructAnnotatedNode(a, node)
-        case Symbol.Constant(node) => CheckFrameworkDefs.defConstantAnnotatedNode(a, node)
-        case _ => throw InternalError("invalid symbol")
-      }
-    }
   
     for {
-        // Check that the FwSizeStoreType and FW_FIXED_LENGTH_STRING_SIZE symbols follow the rules of CheckFrameworkDefs
-        // Then finalize the type definition
+        // If the FwSizeStoreType framework definition is defined, finalize it
         a <- {
           for {
             a <- {
-              val fwFixedLengthStringSizeSymbol = getFwSizeStoreTypeSymbol(a)
-              fwFixedLengthStringSizeSymbol match {
-                case Some(symbol) => finalizeTypeDefs(a, a.typeMap(symbol.getNodeId))
-                case None => Right(a)
-              }
-            }
-            a <- {
-              val fwFixedLengthStringSizeSymbol = getFwFixedLengthStringSizeSymbol(a)
-              fwFixedLengthStringSizeSymbol match {
+              a.frameworkDefinitions.typeMap.get("FwSizeStoreType") match {
                 case Some(symbol) => finalizeTypeDefs(a, a.typeMap(symbol.getNodeId))
                 case None => Right(a)
               }
@@ -333,10 +251,10 @@ object EvalConstantExprs extends UseAnalyzer {
                   case Some(id) => Right(id)
                   case _ => throw InternalError("expected type def node id")
                 }
-              } yield a.assignValue(node -> Value.Integer(computeTypeSize(a, a.typeMap(typeDefId))))
+              } yield a.assignValue(node -> Value.Integer(Type.computeTypeSize(a, a.typeMap(typeDefId))))
             }
             // Otherwise, compute the size of the type
-            case _ => Right(a.assignValue(node -> Value.Integer(computeTypeSize(a, t))))
+            case _ => Right(a.assignValue(node -> Value.Integer(Type.computeTypeSize(a, t))))
           }
         }
     } yield a
