@@ -202,11 +202,14 @@ object CheckUses extends BasicUseAnalyzer {
     for {
       a <- Result.foldLeft (impliedConstantUses) (a) ((a, iu) => {
         val exprNode = iu.asExprNode
-        for {
-          a <- Result.annotateResult(
-            constantUse(a, exprNode, iu.name),
+        val msg = iu.name match {
+          case Name.Qualified(List(),"FW_FIXED_LENGTH_STRING_SIZE") =>
+            s"string type names with the default size require that the constant ${iu.name} is defined"
+          case _ =>
             s"string type names require that the constant ${iu.name} is defined"
-          )
+        }
+        for {
+          a <- Result.annotateResult(constantUse(a, exprNode, iu.name), msg)
         } yield a
       })
       _ <- Result.foldLeft (impliedTypeUses) (()) ((_, itu) => {

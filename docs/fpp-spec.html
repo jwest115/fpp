@@ -116,6 +116,7 @@ h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title str
 :not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
 pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
 pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
 pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
 em em{font-style:normal}
 strong strong{font-weight:400}
@@ -218,7 +219,6 @@ table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
 .literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class=highlight],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
 .literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
 .listingblock>.content{position:relative}
-.listingblock pre>code{display:block}
 .listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
 .listingblock:hover code[data-lang]::before{display:block}
 .listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
@@ -823,7 +823,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#Type-Names_Primitive-Integer-Type-Names">9.1. Primitive Integer Type Names</a></li>
 <li><a href="#Type-Names_Floating-Point-Type-Names">9.2. Floating-Point Type Names</a></li>
 <li><a href="#Type-Names_The-Boolean-Type-Name">9.3. The Boolean Type Name</a></li>
-<li><a href="#Type-Names_String-Type-Names">9.4. String Type Names</a></li>
+<li><a href="#Type-Names_String-Type-Names">9.4. String Type Names</a>
+<ul class="sectlevel3">
+<li><a href="#Type-Names_String-Type-Names_Implied-Uses">9.4.1. Implied Uses</a></li>
+</ul>
+</li>
 <li><a href="#Type-Names_Qualified-Identifier-Type-Names">9.5. Qualified Identifier Type Names</a></li>
 </ul>
 </li>
@@ -8554,7 +8558,19 @@ evaluate to a value in the range [0,2<sup>31</sup>) after conversion to
 <a href="#Types_Internal-Types_Integer"><em>Integer</em></a>.
 The size expression specifies the maximum
 length of a string value represented by the type.  If the size expression is
-not present, then the translator uses a default maximum string length.</p>
+not present, then the translator uses the default maximum string specified by
+FW_FIXED_LENGTH_STRING_SIZE.</p>
+</div>
+<div class="sect3">
+<h4 id="Type-Names_String-Type-Names_Implied-Uses">9.4.1. Implied Uses</h4>
+<div class="paragraph">
+<p>String type names require that the <code>FwSizeStoreType</code>
+<a href="#Definitions_Framework-Definitions_Type-Definitions">framework type</a>
+is defined in the model. If a string uses the default size (i.e., does not
+include a <code>size</code> expression), the <code>FW_FIXED_LENGTH_STRING_SIZE</code>
+<a href="#Definitions_Framework-Definitions_Constant-Definitions">framework constant</a>
+must also be defined.</p>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -12254,7 +12270,7 @@ equivalent.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-02-02 16:38:13 -0800
+Last updated 2026-02-19 12:24:27 -0800
 </div>
 </div>
 <script src="code-prettify/run_prettify.js"></script>
@@ -12281,6 +12297,6 @@ MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
   })
 })
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
 </body>
 </html>
