@@ -111,12 +111,7 @@ object CheckTypeUses extends UseAnalyzer {
     visitIfNeeded(visitor)(a, aNode)
   }
 
-  override def exprNode(a: Analysis, node: AstNode[Ast.Expr]) = {
-    node.data match {
-      case Ast.ExprSizeOf(tnn) => typeNameNode(a, tnn)
-      case _ => default(a)
-    }
-  }
+  override def exprNode(a: Analysis, node: AstNode[Ast.Expr]) = matchExprNode(a, node)
 
   override def typeNameBoolNode(a: Analysis, node: AstNode[Ast.TypeName]) =
     Right(a.assignType(node -> Type.Boolean))

@@ -20,6 +20,9 @@ constant c19 = sizeof(S2)
 constant c20 = sizeof(T)
 constant c21 = sizeof(T2)
 constant c22 = sizeof(T3)
+constant c23 = 4 * sizeof(U32)
+constant c24 = 2 + (sizeof(U32) + sizeof(T3))
+constant c25 = sizeof(E) + sizeof(A) + c18
 
 enum E {
     X = 0

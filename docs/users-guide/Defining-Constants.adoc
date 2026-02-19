@@ -393,6 +393,17 @@ constant a = [ 1, 2, 3 ]
 constant b = a[3]
 --------
 
+==== Sizeof Expressions
+A *sizeof expression* computes the size of a type. It 
+evaluates to an integer value representing the maximum number of bytes
+required to represent any value of the specified type. For example:
+[source,fpp]
+----
+constant i = sizeof(U32)
+----
+
+In this example, constant `i` has a value 4.
+
 ==== Struct Values
 
 A *struct value expression* represents a C- or {cpp}-style structure, i.e., a 
