@@ -71,7 +71,6 @@ object ConstructImpliedUseMap
     node: AstNode[Ast.TypeName], tn: Ast.TypeNameString
   ) = {
     val id = node.id
-    val constants = ImpliedUse.getStringTypeNameConstants(a)
     val typeNames = ImpliedUse.getStringTypeNameTypes(a)
     val empty: ImpliedUse.Uses = Map()
     val typeMap = typeNames.foldLeft (empty) ((m, tn) => {
