@@ -193,35 +193,17 @@ object CheckUses extends BasicUseAnalyzer {
   }
 
   override def typeNameStringNode(
-    a: Analysis, 
-    node: AstNode[Ast.TypeName], 
+    a: Analysis,
+    node: AstNode[Ast.TypeName],
     tn: Ast.TypeNameString
   ) = {
-    val impliedTypeUses = a.getImpliedUses(ImpliedUse.Kind.Type, node.id).toList
-    val impliedConstantUses = a.getImpliedUses(ImpliedUse.Kind.Constant, node.id).toList
-    for {
-      a <- Result.foldLeft (impliedConstantUses) (a) ((a, iu) => {
-        val exprNode = iu.asExprNode
-        val msg = iu.name match {
-          case Name.Qualified(List(),"FW_FIXED_LENGTH_STRING_SIZE") =>
-            s"string type names with the default size require that the constant ${iu.name} is defined"
-          case _ =>
-            s"string type names require that the constant ${iu.name} is defined"
-        }
-        for {
-          a <- Result.annotateResult(constantUse(a, exprNode, iu.name), msg)
-        } yield a
-      })
-      _ <- Result.foldLeft (impliedTypeUses) (()) ((_, itu) => {
-        for {
-          a <- Result.annotateResult(
-            typeUse(a, itu.asTypeNameNode, itu.name),
-              s"string type names require that the type ${itu.name} is defined"
-          )
-        } yield ()
-      })
-      a <- super.typeNameStringNode(a, node, tn)
-    } yield a
+    val result = super.typeNameStringNode(a, node, tn)
+    result match {
+      case Left(SemanticError.UndefinedSymbol("FW_FIXED_LENGTH_STRING_SIZE", _, _)) =>
+        Result.annotateResult(result, "use of a string type with default size requires this definition")
+      case _ =>
+        Result.annotateResult(result, "use of a string type requires this definition")
+    }
   }
 
   // Check that an implied use is a constant def and not a member

@@ -4,4 +4,4 @@ type s = string
          ^
 error: symbol FW_FIXED_LENGTH_STRING_SIZE is not defined
 note: looking for a constant here
-note: string type names with the default size require that the constant FW_FIXED_LENGTH_STRING_SIZE is defined
+note: use of a string type with default size requires this definition
