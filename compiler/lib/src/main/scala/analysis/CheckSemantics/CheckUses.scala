@@ -232,4 +232,5 @@ object CheckUses extends BasicUseAnalyzer {
       )
       Result.annotateResult(error, notes)
   }
+
 }

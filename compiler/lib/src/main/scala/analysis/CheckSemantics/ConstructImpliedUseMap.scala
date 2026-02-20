@@ -4,14 +4,9 @@ import fpp.compiler.ast._
 import fpp.compiler.util._
 
 /** Construct the implied use map */
-object ConstructImpliedUseMap
-  extends Analyzer
-  with ComponentAnalyzer
-  with InterfaceAnalyzer
-  with ModuleAnalyzer
-  with TypeExpressionAnalyzer
-{
+object ConstructImpliedUseMap extends TypeExpressionAnalyzer {
 
+  // TODO: Need to visit types inside of port instances
   override def specPortInstanceAnnotatedNode(a: Analysis, aNode: Ast.Annotated[AstNode[Ast.SpecPortInstance]]) = {
     val (_, node, _) = aNode
     val data = node.data
@@ -42,6 +37,7 @@ object ConstructImpliedUseMap
     }
   }
 
+  // TODO: Need to visit types inside of topologies
   override def defTopologyAnnotatedNode(
     a: Analysis,
     aNode: Ast.Annotated[AstNode[Ast.DefTopology]]
@@ -68,32 +64,23 @@ object ConstructImpliedUseMap
 
   override def typeNameStringNode(
     a: Analysis, 
-    node: AstNode[Ast.TypeName], tn: Ast.TypeNameString
+    node: AstNode[Ast.TypeName],
+    tn: Ast.TypeNameString
   ) = {
     val id = node.id
-    val typeNames = ImpliedUse.getStringTypeNameTypes(a)
-    val empty: ImpliedUse.Uses = Map()
-    val typeMap = typeNames.foldLeft (empty) ((m, tn) => {
+    def getImpliedUses(name: String) = {
+      val il = List(name)
       val id1 = ImpliedUse.replicateId(id)
-      val impliedUse = ImpliedUse.fromIdentListAndId(tn, id1)
-      val set = m.get(ImpliedUse.Kind.Type).getOrElse(Set())
-      m + (ImpliedUse.Kind.Type -> (set + impliedUse))
-    })
-    // Only require string default size constant when a size is
-    // not specified for a string
-    tn.size match {
-      case Some(s) => Right(a.copy(impliedUseMap = a.impliedUseMap + (id -> typeMap)))
-      case None => {
-        val constants = ImpliedUse.getStringTypeNameConstants(a)
-        val map = constants.foldLeft (typeMap) ((m, c) => {
-          val id1 = ImpliedUse.replicateId(id)
-          val impliedUse = ImpliedUse.fromIdentListAndId(c, id1)
-          val set = m.get(ImpliedUse.Kind.Constant).getOrElse(Set())
-          m + (ImpliedUse.Kind.Constant -> (set + impliedUse))
-        })
-        Right(a.copy(impliedUseMap = a.impliedUseMap + (id -> map)))
-      }
+      Set(ImpliedUse.fromIdentListAndId(il, id1))
     }
+    val map =
+      Map(ImpliedUse.Kind.Type -> getImpliedUses("FwSizeStoreType"))
+    val map1 = if tn.size.isDefined
+      then map
+      else map + (
+        ImpliedUse.Kind.Constant -> getImpliedUses("FW_FIXED_LENGTH_STRING_SIZE")
+      )
+    Right(a.copy(impliedUseMap = a.impliedUseMap + (id -> map1)))
   }
 
 }
