@@ -197,6 +197,7 @@ object CheckUses extends BasicUseAnalyzer {
     node: AstNode[Ast.TypeName],
     tn: Ast.TypeNameString
   ) = {
+    // TODO: Check implied use is constant def
     val result = super.typeNameStringNode(a, node, tn)
     result match {
       case Left(SemanticError.UndefinedSymbol("FW_FIXED_LENGTH_STRING_SIZE", _, _)) =>
@@ -208,6 +209,7 @@ object CheckUses extends BasicUseAnalyzer {
 
   // Check that an implied use is a constant def and not a member
   // of a constant def
+  // TODO: Also check that the implied use does not shadow the required def
   private def checkImpliedUseIsConstantDef(a: Analysis, iu: ImpliedUse, exprNode: AstNode[Ast.Expr]) = {
     val sym = a.useDefMap(exprNode.id)
     // Check that the name of the def matches the name of the use
