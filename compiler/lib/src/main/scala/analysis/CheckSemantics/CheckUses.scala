@@ -219,30 +219,29 @@ object CheckUses extends BasicUseAnalyzer {
     val symQualifiedName = a.getQualifiedName(sym).toString
     val iuName = iu.name.toString
     // Check that the name of the def matches the name of the use
-    if symQualifiedName == iuName
-    // OK, they match
-    then Right(a)
-    // Definition has a shorter name: the constant is a member of the definition
-    else if symQualifiedName.length < iuName.length
-    then
-      val symName = sym.getUnqualifiedName
-      val error = Left(
-        SemanticError.InvalidSymbol(
-          symName,
-          Locations.get(exprNode.id),
-          s"it has $iuName as a member",
-          sym.getLoc
+    val result = if symQualifiedName == iuName
+      // OK, they match
+      then Right(a)
+      else {
+        val msg = if symQualifiedName.length < iuName.length
+        // Definition has a shorter name: the constant is a member of the definition
+        then s"it has $iuName as a member"
+        // Definition has a longer name: it shadows the required definition
+        else s"it shadows $iuName here"
+        Left(
+          SemanticError.InvalidSymbol(
+            symQualifiedName,
+            Locations.get(exprNode.id),
+            msg,
+            sym.getLoc
+          )
         )
-      )
-      val notes = List(
-        s"$iuName is an F Prime framework constant",
-        "it must be a constant definition"
-      )
-      Result.annotateResult(error, notes)
-    // Definition has a longer name: it shadows the required definition
-    else
-      // TODO
-      Right(a)
+      }
+    val notes = List(
+      s"$iuName is an F Prime framework constant",
+      "it must be a constant definition"
+    )
+    Result.annotateResult(result, notes)
   }
 
 }

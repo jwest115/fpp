@@ -5,6 +5,68 @@
       "members" : [
         [
           [
+          ],
+          {
+            "DefAliasType" : {
+              "node" : {
+                "AstNode" : {
+                  "data" : {
+                    "name" : "FwSizeStoreType",
+                    "typeName" : {
+                      "AstNode" : {
+                        "data" : {
+                          "TypeNameInt" : {
+                            "name" : {
+                              "U16" : {
+                                
+                              }
+                            }
+                          }
+                        },
+                        "id" : 0
+                      }
+                    },
+                    "isDictionaryDef" : false
+                  },
+                  "id" : 1
+                }
+              }
+            }
+          },
+          [
+          ]
+        ],
+        [
+          [
+          ],
+          {
+            "DefConstant" : {
+              "node" : {
+                "AstNode" : {
+                  "data" : {
+                    "name" : "FW_FIXED_LENGTH_STRING_SIZE",
+                    "value" : {
+                      "AstNode" : {
+                        "data" : {
+                          "ExprLiteralInt" : {
+                            "value" : "256"
+                          }
+                        },
+                        "id" : 2
+                      }
+                    },
+                    "isDictionaryDef" : false
+                  },
+                  "id" : 3
+                }
+              }
+            }
+          },
+          [
+          ]
+        ],
+        [
+          [
             "A component for illustrating priority and queue full behavior for async",
             "commands"
           ],
@@ -20,68 +82,6 @@
                     },
                     "name" : "PriorityQueueFull",
                     "members" : [
-                      [
-                        [
-                        ],
-                        {
-                          "DefAliasType" : {
-                            "node" : {
-                              "AstNode" : {
-                                "data" : {
-                                  "name" : "FwSizeStoreType",
-                                  "typeName" : {
-                                    "AstNode" : {
-                                      "data" : {
-                                        "TypeNameInt" : {
-                                          "name" : {
-                                            "U16" : {
-                                              
-                                            }
-                                          }
-                                        }
-                                      },
-                                      "id" : 0
-                                    }
-                                  },
-                                  "isDictionaryDef" : false
-                                },
-                                "id" : 1
-                              }
-                            }
-                          }
-                        },
-                        [
-                        ]
-                      ],
-                      [
-                        [
-                        ],
-                        {
-                          "DefConstant" : {
-                            "node" : {
-                              "AstNode" : {
-                                "data" : {
-                                  "name" : "FW_FIXED_LENGTH_STRING_SIZE",
-                                  "value" : {
-                                    "AstNode" : {
-                                      "data" : {
-                                        "ExprLiteralInt" : {
-                                          "value" : "256"
-                                        }
-                                      },
-                                      "id" : 2
-                                    }
-                                  },
-                                  "isDictionaryDef" : false
-                                },
-                                "id" : 3
-                              }
-                            }
-                          }
-                        },
-                        [
-                        ]
-                      ],
                       [
                         [
                           "Command registration"
@@ -508,22 +508,22 @@
   "locationMap" : {
     "0" : {
       "file" : "[ local path prefix ]/compiler/tools/fpp-to-json/test/commands.fpp",
-      "pos" : "5.26",
+      "pos" : "1.24",
       "includingLoc" : "None"
     },
     "1" : {
       "file" : "[ local path prefix ]/compiler/tools/fpp-to-json/test/commands.fpp",
-      "pos" : "5.3",
+      "pos" : "1.1",
       "includingLoc" : "None"
     },
     "2" : {
       "file" : "[ local path prefix ]/compiler/tools/fpp-to-json/test/commands.fpp",
-      "pos" : "6.42",
+      "pos" : "2.40",
       "includingLoc" : "None"
     },
     "3" : {
       "file" : "[ local path prefix ]/compiler/tools/fpp-to-json/test/commands.fpp",
-      "pos" : "6.3",
+      "pos" : "2.1",
       "includingLoc" : "None"
     },
     "4" : {
@@ -753,7 +753,7 @@
     },
     "49" : {
       "file" : "[ local path prefix ]/compiler/tools/fpp-to-json/test/commands.fpp",
-      "pos" : "3.1",
+      "pos" : "6.1",
       "includingLoc" : "None"
     },
     "50" : {
@@ -1059,10 +1059,20 @@
     },
     "frameworkDefinitions" : {
       "constantMap" : {
-        
+        "FW_FIXED_LENGTH_STRING_SIZE" : {
+          "node" : {
+            "astNodeId" : 3
+          }
+        }
       },
       "typeMap" : {
-        
+        "FwSizeStoreType" : {
+          "AliasType" : {
+            "node" : {
+              "astNodeId" : 1
+            }
+          }
+        }
       }
     },
     "includedFileSet" : [
@@ -1073,13 +1083,13 @@
     "locationSpecifierMap" : [
     ],
     "parentSymbolMap" : {
-      "51" : {
+      "50" : {
         "Module" : {
           "nodeId" : 55,
           "unqualifiedName" : "Fw"
         }
       },
-      "50" : {
+      "51" : {
         "Module" : {
           "nodeId" : 55,
           "unqualifiedName" : "Fw"
@@ -1090,43 +1100,12 @@
           "nodeId" : 55,
           "unqualifiedName" : "Fw"
         }
-      },
-      "1" : {
-        "Component" : {
-          "nodeId" : 49,
-          "unqualifiedName" : "PriorityQueueFull"
-        }
-      },
-      "3" : {
-        "Component" : {
-          "nodeId" : 49,
-          "unqualifiedName" : "PriorityQueueFull"
-        }
       }
     },
     "symbolScopeMap" : {
       "49" : {
         "map" : {
-          "Type" : {
-            "map" : {
-              "FwSizeStoreType" : {
-                "AliasType" : {
-                  "nodeId" : 1,
-                  "unqualifiedName" : "FwSizeStoreType"
-                }
-              }
-            }
-          },
-          "Value" : {
-            "map" : {
-              "FW_FIXED_LENGTH_STRING_SIZE" : {
-                "Constant" : {
-                  "nodeId" : 3,
-                  "unqualifiedName" : "FW_FIXED_LENGTH_STRING_SIZE"
-                }
-              }
-            }
-          }
+          
         }
       },
       "55" : {
