@@ -197,8 +197,13 @@ object CheckUses extends BasicUseAnalyzer {
     node: AstNode[Ast.TypeName],
     tn: Ast.TypeNameString
   ) = {
-    // TODO: Check implied use is constant def
-    val result = super.typeNameStringNode(a, node, tn)
+    val impliedConstantUses = a.getImpliedUses(ImpliedUse.Kind.Constant, node.id).toList
+    val result = for {
+      a <- super.typeNameStringNode(a, node, tn)
+      _ <- Result.foldLeft (impliedConstantUses) (a) ((a, iu) =>
+        checkImpliedUseIsConstantDef(a, iu, iu.asExprNode)
+      )
+    } yield a
     result match {
       case Left(SemanticError.UndefinedSymbol("FW_FIXED_LENGTH_STRING_SIZE", _, _)) =>
         Result.annotateResult(result, "use of a string type with default size requires this definition")
@@ -207,18 +212,19 @@ object CheckUses extends BasicUseAnalyzer {
     }
   }
 
-  // Check that an implied use is a constant def and not a member
-  // of a constant def
-  // TODO: Also check that the implied use does not shadow the required def
+  // Check that an implied use (a) is a constant def and (b) is not a member
+  // of a constant def and (b) does not shadow the required constant def
   private def checkImpliedUseIsConstantDef(a: Analysis, iu: ImpliedUse, exprNode: AstNode[Ast.Expr]) = {
     val sym = a.useDefMap(exprNode.id)
+    val symQualifiedName = a.getQualifiedName(sym).toString
+    val iuName = iu.name.toString
     // Check that the name of the def matches the name of the use
-    if a.getQualifiedName(sym) == iu.name
+    if symQualifiedName == iuName
     // OK, they match
     then Right(a)
-    // They don't match: the definition does not provide the required constant
-    else
-      val iuName = iu.name
+    // Definition has a shorter name: the constant is a member of the definition
+    else if symQualifiedName.length < iuName.length
+    then
       val symName = sym.getUnqualifiedName
       val error = Left(
         SemanticError.InvalidSymbol(
@@ -233,6 +239,10 @@ object CheckUses extends BasicUseAnalyzer {
         "it must be a constant definition"
       )
       Result.annotateResult(error, notes)
+    // Definition has a longer name: it shadows the required definition
+    else
+      // TODO
+      Right(a)
   }
 
 }
