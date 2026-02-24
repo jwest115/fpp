@@ -1227,7 +1227,6 @@ Here is an example:
 
 [source,fpp]
 ----
-# The following definitions are required when using string types
 type FwSizeStoreType = U16
 constant FW_FIXED_LENGTH_STRING_SIZE = 256
 
