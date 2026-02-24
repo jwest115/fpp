@@ -2271,40 +2271,46 @@ of width 32 and 64 bits.</p>
 <li>
 <p>The type name <code>string</code>, denoting the type of
 <a href="#Defining-Constants_Expressions_String-Values">string values</a>.
-The <code>string</code> type name requires that the <code>FwSizeStoreType</code>
-<a href="#Defining-Types_Framework-Types">framework type</a>
-and <code>FW_FIXED_LENGTH_STRING_SIZE</code>
-<a href="#Defining-Constants_Framework-Constants">framework constant</a> is defined
-in the model.
-The framework constant <code>FW_FIXED_LENGTH_STRING_SIZE</code> specifies the
-maximum string length of any value of type <code>string</code> when it
-is represented in the F Prime framework.
 For example:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp"># Framework type required when using strings
-type FwSizeStoreType = U16
-# Framework constant required when using strings without a size
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
 constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
 # A is an array of 3 strings with size FW_FIXED_LENGTH_STRING_SIZE
 array A = [3] string</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Notice that we defined the
+<a href="#Defining-Types_Framework-Types">framework type</a>
+<code>FwSizeStoreType</code> and the
+<a href="#Defining-Constants_Framework-Constants">framework constant</a>
+<code>FW_FIXED_LENGTH_STRING_SIZE</code>.
+These definitions are required when using the type <code>string</code>.
+Typically you provide them as part of the F Prime configuration.
+<code>FwSizeStoreType</code> specifies the type to use for storing the
+length of a string.
+<code>FW_FIXED_LENGTH_STRING_SIZE</code> specifies the size of the buffer
+used to store string data.</p>
 </div>
 </li>
 <li>
 <p>The type name <code>string size</code> <em>e</em>, where <em>e</em> is a numeric expression
 specifying the maximum string length of any value of that type.
-The <code>string size</code> type name requires that the <code>FwSizeStoreType</code> framework
-type is defined in the model. Note that it does <em>not</em> require the
-<code>FW_FIXED_LENGTH_STRING_SIZE</code> framework constant to be defined since the size
-is specified by the <em>e</em> numeric expression.</p>
+For example:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="fpp"># Framework type required when using strings
-type FwSizeStoreType = U16
+<pre class="prettyprint highlight"><code data-lang="fpp">type FwSizeStoreType = U16
+
 # A is an array of 3 strings with size 40
 array A = [3] string size 40</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Here we just specified <code>FwSizeStoreType</code>.
+If a string type has an explicit size, then it does not
+use the definition <code>FW_FIXED_LENGTH_STRING_SIZE</code>.</p>
 </div>
 </li>
 <li>
@@ -16450,7 +16456,7 @@ serialized according to its
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-02-24 13:54:07 -0800
+Last updated 2026-02-24 14:03:53 -0800
 </div>
 </div>
 <script src="code-prettify/run_prettify.js"></script>
