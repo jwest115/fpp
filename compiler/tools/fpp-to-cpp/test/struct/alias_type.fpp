@@ -1,3 +1,5 @@
+type FwSizeStoreType = U16
+
 type U16Alias = U16
 type T
 type TAlias = T
@@ -7,4 +9,3 @@ struct AliasType {
     y: TAlias,
     z: [10] SAlias
 }
-type FwSizeStoreType = U16
