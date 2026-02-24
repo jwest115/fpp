@@ -197,9 +197,6 @@ object CheckUses extends BasicUseAnalyzer {
     val impliedConstantUses = a.getImpliedUses(ImpliedUse.Kind.Constant, node.id).toList
     val result = for {
       a <- super.typeNameStringNode(a, node, tn)
-      //_ <- Result.foldLeft (impliedConstantUses) (()) ((_, iu) =>
-      //  checkImpliedUse(a, iu, iu.asExprNode, "constant")
-      //)
       _ <- checkImpliedUses(a, node)
     } yield a
     result match {
@@ -210,6 +207,7 @@ object CheckUses extends BasicUseAnalyzer {
     }
   }
 
+  // Check that implied uses obey the rules
   private def checkImpliedUses[T](
     a: Analysis,
     node: AstNode[T]
@@ -217,17 +215,17 @@ object CheckUses extends BasicUseAnalyzer {
     val impliedTypeUses = a.getImpliedUses(ImpliedUse.Kind.Type, node.id).toList
     val impliedConstantUses = a.getImpliedUses(ImpliedUse.Kind.Constant, node.id).toList
     for {
-      _ <- Result.foldLeft (impliedConstantUses) (()) ((_, iu) => {
+      _ <- Result.foldLeft (impliedConstantUses) (()) ((_, iu) =>
         checkImpliedUse(a, iu, iu.asExprNode, "constant")
-      })
-      _ <- Result.foldLeft (impliedTypeUses) (()) ((_, iu) => {
+      )
+      _ <- Result.foldLeft (impliedTypeUses) (()) ((_, iu) =>
         checkImpliedUse(a, iu, iu.asExprNode, "type")
-      })
+      )
     } yield ()
   }
 
-  // Check that an implied use (a) is a constant def and (b) is not a member
-  // of a constant def and (b) does not shadow the required constant def
+  // Check that an implied use (a) is not a member
+  // of a def and (b) does not shadow the required def
   private def checkImpliedUse(
     a: Analysis,
     iu: ImpliedUse,
