@@ -44,6 +44,13 @@ module Fw {
     }
 
     constant DpCfg = {
+        # NOTE: The constant Fw.DpCfg.CONTAINER_USER_DATA_SIZE is a member of a
+        # constant symbol, not a constant symbol. So we are testing this
+        # error case. However, because Fw.DpCfg.ProcType is also a required
+        # framework definition, the error that we get is a duplicate definition
+        # (constant DpCfg vs. module DpCfg), not an invalid member. Given the
+        # current rules for framework types, there seems to be no way to force
+        # the "invalid member" error to occur; so this is the best we can do.
         CONTAINER_USER_DATA_SIZE = 1
     }
 
