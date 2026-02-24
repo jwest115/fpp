@@ -14,7 +14,7 @@ basic_guard()
 
 basic_guard_string()
 {
-  run_test "$fpp_flags",../../StringFwDefs.fpp BasicGuardString && \
+  run_test "$fpp_flags" BasicGuardString && \
     diff_cpp BasicGuardStringStateMachine
 }
 
@@ -62,7 +62,7 @@ basic_self()
 
 basic_string()
 {
-  run_test "$fpp_flags",../../StringFwDefs.fpp BasicString && \
+  run_test "$fpp_flags" BasicString && \
     diff_cpp BasicStringStateMachine
 }
 
