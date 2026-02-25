@@ -9,4 +9,4 @@ symbol is defined here:
   ^
 note: FW_FIXED_LENGTH_STRING_SIZE is an F Prime framework constant
 note: it must be a constant definition
-note: use of a string type requires this definition
+note: use of a string type with default size requires this definition

@@ -70,18 +70,27 @@ object ConstructImpliedUseMap extends TypeExpressionAnalyzer {
     tn: Ast.TypeNameString
   ) = {
     val id = node.id
-    def getImpliedUses(name: String) = {
+    def getImpliedUses(name: String, annotation: String) = {
       val il = List(name)
       val id1 = ImpliedUse.replicateId(id)
-      Set(ImpliedUse.fromIdentListAndId(il, id1))
+      Set(ImpliedUse.fromIdentListAndId(il, id1, Some(annotation)))
     }
-    val map =
-      Map(ImpliedUse.Kind.Type -> getImpliedUses("FwSizeStoreType"))
+    val map = {
+      val uses = getImpliedUses(
+        "FwSizeStoreType",
+        "use of a string type requires this definition"
+      )
+      Map(ImpliedUse.Kind.Type -> uses)
+    }
     val map1 = if tn.size.isDefined
       then map
-      else map + (
-        ImpliedUse.Kind.Constant -> getImpliedUses("FW_FIXED_LENGTH_STRING_SIZE")
-      )
+      else {
+        val uses = getImpliedUses(
+          "FW_FIXED_LENGTH_STRING_SIZE",
+          "use of a string type with default size requires this definition"
+        )
+        map + (ImpliedUse.Kind.Constant -> uses)
+      }
     val a1 = a.copy(impliedUseMap = a.impliedUseMap + (id -> map1))
     super.typeNameStringNode(a1, node, tn)
   }

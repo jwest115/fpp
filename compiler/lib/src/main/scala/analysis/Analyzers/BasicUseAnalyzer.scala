@@ -35,15 +35,15 @@ trait BasicUseAnalyzer extends TypeExpressionAnalyzer {
 
   /** An implied constant use */
   def impliedConstantUse(a: Analysis, iu: ImpliedUse) =
-    exprNode(a, iu.asExprNode)
+    iu.annotateResult(exprNode(a, iu.asExprNode))
 
   /** An implied port use */
   def impliedPortUse(a: Analysis, iu: ImpliedUse) =
-    portUse(a, iu.asQualIdentNode, iu.name)
+    iu.annotateResult(portUse(a, iu.asQualIdentNode, iu.name))
 
   /** An implied type use */
   def impliedTypeUse(a: Analysis, iu: ImpliedUse) =
-    typeUse(a, iu.asTypeNameNode, iu.name)
+    iu.annotateResult(typeUse(a, iu.asTypeNameNode, iu.name))
 
   override def defComponentInstanceAnnotatedNode(a: Analysis, node: Ast.Annotated[AstNode[Ast.DefComponentInstance]]) = {
     val (_, node1, _) = node

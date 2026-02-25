@@ -8,7 +8,9 @@ case class ImpliedUse(
   /** The fully-qualified name of the implied use */
   name: Name.Qualified,
   /** The AST node id associated with the implied use */
-  id: AstNode.Id
+  id: AstNode.Id,
+  /** An optional annotation for error reporting */
+  annotationOpt: Option[String] = None
 ) {
 
   def asExprNode: AstNode[Ast.Expr] = {
@@ -29,6 +31,11 @@ case class ImpliedUse(
   def asTypeNameNode: AstNode[Ast.TypeName] = {
     val typeName = Ast.TypeNameQualIdent(asQualIdentNode)
     AstNode.create(typeName, id)
+  }
+
+  def annotateResult[T](r: Result.Result[T]) = annotationOpt match {
+    case Some(a) => Result.annotateResult(r, List(a))
+    case None => r
   }
 
 }
@@ -78,7 +85,11 @@ object ImpliedUse {
     id1
   }
 
-  def fromIdentListAndId(identList: List[Name.Unqualified], id: AstNode.Id) =
-    ImpliedUse(Name.Qualified.fromIdentList(identList), id)
+  def fromIdentListAndId(
+    identList: List[Name.Unqualified],
+    id: AstNode.Id,
+    annotationOpt: Option[String] = None
+  ) =
+    ImpliedUse(Name.Qualified.fromIdentList(identList), id, annotationOpt)
 
 }

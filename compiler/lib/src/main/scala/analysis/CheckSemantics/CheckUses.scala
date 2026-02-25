@@ -193,19 +193,10 @@ object CheckUses extends BasicUseAnalyzer {
     a: Analysis,
     node: AstNode[Ast.TypeName],
     tn: Ast.TypeNameString
-  ) = {
-    val impliedConstantUses = a.getImpliedUses(ImpliedUse.Kind.Constant, node.id).toList
-    val result = for {
-      a <- super.typeNameStringNode(a, node, tn)
-      _ <- checkImpliedUses(a, node)
-    } yield a
-    result match {
-      case Left(SemanticError.UndefinedSymbol("FW_FIXED_LENGTH_STRING_SIZE", _, _)) =>
-        Result.annotateResult(result, "use of a string type with default size requires this definition")
-      case _ =>
-        Result.annotateResult(result, "use of a string type requires this definition")
-    }
-  }
+  ) = for {
+    a <- super.typeNameStringNode(a, node, tn)
+    _ <- checkImpliedUses(a, node)
+  } yield a
 
   // Check that implied uses obey the rules
   private def checkImpliedUses[T](
@@ -258,7 +249,7 @@ object CheckUses extends BasicUseAnalyzer {
       s"$iuName is an F Prime framework $kind",
       s"it must be a $kind definition"
     )
-    Result.annotateResult(result, notes)
+    iu.annotateResult(Result.annotateResult(result, notes))
   }
 
 }
