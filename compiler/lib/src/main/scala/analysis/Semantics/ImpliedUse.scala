@@ -34,7 +34,7 @@ case class ImpliedUse(
   }
 
   def annotateResult[T](r: Result.Result[T]) = {
-    val as = s"the symbol $name has an implied use here" :: annotations
+    val as = s"the symbol $name has an implied use at the point of the error" :: annotations
     Result.annotateResult(r, as)
   }
 
