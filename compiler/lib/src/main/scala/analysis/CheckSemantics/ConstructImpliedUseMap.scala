@@ -73,7 +73,7 @@ object ConstructImpliedUseMap extends TypeExpressionAnalyzer {
     def getImpliedUses(name: String, annotation: String) = {
       val il = List(name)
       val id1 = ImpliedUse.replicateId(id)
-      Set(ImpliedUse.fromIdentListAndId(il, id1, Some(annotation)))
+      Set(ImpliedUse.fromIdentListAndId(il, id1, List(annotation)))
     }
     val map = {
       val uses = getImpliedUses(
