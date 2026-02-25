@@ -89,7 +89,6 @@ object ImpliedUse {
     identList: List[Name.Unqualified],
     id: AstNode.Id,
     annotations: List[String] = Nil
-  ) =
-    ImpliedUse(Name.Qualified.fromIdentList(identList), id, annotations)
+  ) = ImpliedUse(Name.Qualified.fromIdentList(identList), id, annotations)
 
 }
