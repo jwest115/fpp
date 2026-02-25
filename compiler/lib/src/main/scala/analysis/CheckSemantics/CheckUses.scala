@@ -146,6 +146,7 @@ object CheckUses extends BasicUseAnalyzer {
     } yield a.copy(nestedScope = a.nestedScope.pop)
   }
 
+  /*
   override def defTopologyAnnotatedNode(a: Analysis, node: Ast.Annotated[AstNode[Ast.DefTopology]]) = {
     val impliedTypeUses = a.getImpliedUses(ImpliedUse.Kind.Type, node._2.id).toList
     val impliedConstantUses = a.getImpliedUses(ImpliedUse.Kind.Constant, node._2.id).toList
@@ -165,6 +166,7 @@ object CheckUses extends BasicUseAnalyzer {
       a <- TopologyAnalyzer.visit(this, a, node)
     } yield a
   }
+  */
 
   override def portUse(a: Analysis, node: AstNode[Ast.QualIdent], use: Name.Qualified) =
     helpers.visitQualIdentNode (NameGroup.Port) (a, node)
@@ -188,6 +190,7 @@ object CheckUses extends BasicUseAnalyzer {
     }
   }
 
+  /*
   override def typeNameStringNode(
     a: Analysis,
     node: AstNode[Ast.TypeName],
@@ -195,6 +198,7 @@ object CheckUses extends BasicUseAnalyzer {
   ) = for {
     a <- super.typeNameStringNode(a, node, tn)
   } yield a
+  */
 
   override def impliedConstantUse(a: Analysis, iu: ImpliedUse) =
     for {

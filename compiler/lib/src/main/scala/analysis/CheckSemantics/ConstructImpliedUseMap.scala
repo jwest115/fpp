@@ -47,16 +47,17 @@ object ConstructImpliedUseMap extends TypeExpressionAnalyzer {
     val id = aNode._2.id
     val typeNames = ImpliedUse.getTopologyTypes(a)
     val empty: ImpliedUse.Uses = Map()
+    val annotations = List("this implied use occurs when constructing a dictionary")
     val typeMap = typeNames.foldLeft (empty) ((m, tn) => {
       val id1 = ImpliedUse.replicateId(id)
-      val impliedUse = ImpliedUse.fromIdentListAndId(tn, id1)
+      val impliedUse = ImpliedUse.fromIdentListAndId(tn, id1, annotations)
       val set = m.get(ImpliedUse.Kind.Type).getOrElse(Set())
       m + (ImpliedUse.Kind.Type -> (set + impliedUse))
     })
     val constants = ImpliedUse.getTopologyConstants(a)
     val map = constants.foldLeft (typeMap) ((m, c) => {
       val id1 = ImpliedUse.replicateId(id)
-      val impliedUse = ImpliedUse.fromIdentListAndId(c, id1)
+      val impliedUse = ImpliedUse.fromIdentListAndId(c, id1, annotations)
       val set = m.get(ImpliedUse.Kind.Constant).getOrElse(Set())
       m + (ImpliedUse.Kind.Constant -> (set + impliedUse))
     })
