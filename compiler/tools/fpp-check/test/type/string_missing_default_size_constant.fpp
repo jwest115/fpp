@@ -1,2 +1,3 @@
-type s = string
 type FwSizeStoreType = U16
+
+type s = string

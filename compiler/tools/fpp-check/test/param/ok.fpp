@@ -1,3 +1,6 @@
+type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
 module Fw {
 
   port Cmd
@@ -9,8 +12,6 @@ module Fw {
 
 }
 
-type FwSizeStoreType = U16
-constant FW_FIXED_LENGTH_STRING_SIZE = 256
 array U32x3 = [3] U32
 
 passive component C {

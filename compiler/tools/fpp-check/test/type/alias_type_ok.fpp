@@ -1,3 +1,6 @@
+type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
 enum E1T {
     E1 = 0
     E2 = 1
@@ -9,9 +12,6 @@ struct SS {
     F2: U32
     F3: bool
 }
-
-type FwSizeStoreType = U16
-constant FW_FIXED_LENGTH_STRING_SIZE = 256
 
 type TU = U32
 type TS = string size 20

@@ -1,3 +1,6 @@
+type FwSizeStoreType = U16
+constant FW_FIXED_LENGTH_STRING_SIZE = 256
+
 @ An array of strings
 array String1 = [3] string
 
@@ -9,6 +12,3 @@ def
 
 @ An array of arrays of strings
 array StringArray = [5] String2
-
-type FwSizeStoreType = U16
-constant FW_FIXED_LENGTH_STRING_SIZE = 256

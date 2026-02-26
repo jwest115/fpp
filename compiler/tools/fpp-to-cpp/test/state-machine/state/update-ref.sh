@@ -14,7 +14,7 @@ basic_guard()
 
 basic_guard_string()
 {
-  update "$fpp_flags",../../StringFwDefs.fpp BasicGuardString
+  update "$fpp_flags" BasicGuardString
   move_cpp BasicGuardStringStateMachine
 }
 
@@ -62,7 +62,7 @@ basic_self()
 
 basic_string()
 {
-  update "$fpp_flags",../../StringFwDefs.fpp BasicString
+  update "$fpp_flags" BasicString
   move_cpp BasicStringStateMachine
 }
 

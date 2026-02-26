@@ -30,7 +30,6 @@
 #include "Fw/Prm/PrmSetPortAc.hpp"
 #include "Fw/Time/TimePortAc.hpp"
 #include "Fw/Tlm/TlmPortAc.hpp"
-#include "FwSizeStoreTypeAliasAc.hpp"
 #include "NoArgsAliasStringReturnPortAc.hpp"
 #include "NoArgsPortAc.hpp"
 #include "NoArgsReturnPortAc.hpp"
@@ -38,6 +37,7 @@
 #include "Os/Mutex.hpp"
 #include "TypedPortAc.hpp"
 #include "TypedReturnPortAc.hpp"
+#include "config/FwSizeStoreTypeAliasAc.hpp"
 
 //! \class ActiveSyncProductsComponentBase
 //! \brief Auto-generated base for ActiveSyncProducts component

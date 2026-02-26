@@ -40,7 +40,6 @@
 #include "Fw/Tlm/TlmPortAc.hpp"
 #include "Fw/Tlm/TlmString.hpp"
 #include "Fw/Types/InternalInterfaceString.hpp"
-#include "FwSizeStoreTypeAliasAc.hpp"
 #include "NoArgsAliasStringReturnPortAc.hpp"
 #include "NoArgsPortAc.hpp"
 #include "NoArgsReturnPortAc.hpp"
@@ -49,6 +48,7 @@
 #include "SSerializableAc.hpp"
 #include "TypedPortAc.hpp"
 #include "TypedReturnPortAc.hpp"
+#include "config/FwSizeStoreTypeAliasAc.hpp"
 
 namespace M {
 

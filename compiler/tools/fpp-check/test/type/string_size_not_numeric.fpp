@@ -1,2 +1,3 @@
-array A = [3] string size "abc"
 type FwSizeStoreType = U16
+
+array A = [3] string size "abc"
