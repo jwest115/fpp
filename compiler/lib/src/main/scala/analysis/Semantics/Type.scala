@@ -610,7 +610,7 @@ object Type {
         case Type.String(size) => {
           val fwStoreSizeSymbol = a.frameworkDefinitions.typeMap("FwSizeStoreType")
           val storeSizeType = a.typeMap(fwStoreSizeSymbol.getNodeId)
-            val stringDataSize = size match {
+          val stringDataSize = size match {
               case Some(AstNode(Ast.ExprLiteralInt(s), _)) => BigInt(s)
               case _ => {
                   val defaultStringSizeSymbol = a.frameworkDefinitions.constantMap("FW_FIXED_LENGTH_STRING_SIZE")

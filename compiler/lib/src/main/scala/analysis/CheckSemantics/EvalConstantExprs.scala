@@ -243,6 +243,15 @@ object EvalConstantExprs extends UseAnalyzer {
           // expressions appearing in the type and finalize 
           // the type definition before computing the size of the type
           e.typeName.data match {
+            case Ast.TypeNameString(Some(sizeNode)) =>
+              sizeNode.data match {
+                case e: Ast.ExprSizeOf => 
+                  for {
+                    a <- exprSizeOfNode(a, sizeNode, e)
+                    a <- Right(a.assignValue(node -> Value.Integer(Type.computeTypeSize(a, t))))
+                  } yield a
+                case _ => Right(a.assignValue(node -> Value.Integer(Type.computeTypeSize(a, t))))
+            }
             case Ast.TypeNameQualIdent(_) => {
               for {
                 a <- visitExprs(a, t)

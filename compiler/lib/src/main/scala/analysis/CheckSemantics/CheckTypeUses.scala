@@ -139,7 +139,12 @@ object CheckTypeUses extends UseAnalyzer {
   }
 
   override def typeNameStringNode(a: Analysis, node: AstNode[Ast.TypeName], tn: Ast.TypeNameString) =
-    Right(a.assignType(node -> Type.String(tn.size)))
+    for {
+      a <- tn.size match
+        case Some(size) => exprNode(a, size)
+        case None => Right(a)
+    } 
+    yield a.assignType(node -> Type.String(tn.size))
 
   override def typeUse(a: Analysis, node: AstNode[Ast.TypeName], use: Name.Qualified) =
     visitUse(a, node)
