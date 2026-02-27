@@ -611,7 +611,12 @@ object Type {
           val fwStoreSizeSymbol = a.frameworkDefinitions.typeMap("FwSizeStoreType")
           val storeSizeType = a.typeMap(fwStoreSizeSymbol.getNodeId)
           val stringDataSize = size match {
-              case Some(AstNode(Ast.ExprLiteralInt(s), _)) => BigInt(s)
+              case Some(sizeNode) => {
+                a.valueMap(sizeNode.id) match {
+                  case Value.Integer(value) => value
+                  case _ => throw InternalError("expected integer value")
+                }
+              }
               case _ => {
                   val defaultStringSizeSymbol = a.frameworkDefinitions.constantMap("FW_FIXED_LENGTH_STRING_SIZE")
                   a.valueMap(defaultStringSizeSymbol.getNodeId) match {
